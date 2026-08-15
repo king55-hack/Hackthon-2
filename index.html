@@ -87,6 +87,8 @@
   .badge.warn{ background:#FBE6DA;color:#B65E18; }
   .badge.ok{ background:#E1F0EC;color:#1E6B5E; }
   .badge.blue{ background:#E4EEF6;color:#2E6FA0; }
+  .badge.gray{ background:#EEF1F3;color:var(--muted); }
+  .badge.alert2{ background:#FBEAE6;color:#8f2c1e; }
   .livedot{ display:inline-block;width:6px;height:6px;border-radius:50%;background:#1E6B5E;margin-right:4px;animation:pulse 1.4s infinite; }
   .listitem{ display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line); }
   .listitem:last-child{ border-bottom:none; }
@@ -111,6 +113,25 @@
   .chips button.on{ background:var(--accent);color:#fff;border-color:var(--accent); }
   .check{ display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:13px; }
   .check input{ margin-top:2px;width:18px;height:18px;accent-color:var(--accent); }
+
+  /* auth / connect forms */
+  .field{ margin-bottom:12px; }
+  .field label{ font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px; }
+  .field input, .field select{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-size:13.5px;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  .field input:focus, .field select:focus{ outline:2px solid var(--accent);outline-offset:1px; }
+  .fielderr{ font-size:11.5px;color:#C24A3A;margin-top:4px; }
+  .statusrow{ display:flex;gap:8px; }
+  .statusrow button{
+    flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px 6px;
+    font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;
+  }
+  .statusrow button.on.safe{ background:#E1F0EC;border-color:#1E6B5E;color:#1E6B5E; }
+  .statusrow button.on.help{ background:#FBEAE6;border-color:#8f2c1e;color:#8f2c1e; }
+  .statusrow button.on.unknown{ background:#EEF1F3;border-color:var(--muted);color:var(--ink); }
+  .linkbtn{ background:none;border:none;color:var(--accent);font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;padding:0; }
 
   /* bottom nav */
   nav{ display:flex;background:#fff;border-top:1px solid var(--line); }
@@ -144,7 +165,7 @@
       <div class="brand">ソナエル<small>SONAERU</small></div>
       <div class="langpills" id="langpills">
         <button data-l="ja" class="on">日本</button>
-        <button data-l="easy">やさ</button>
+        <button data-l="easy" title="やさしい日本語">やさしい</button>
         <button data-l="en">EN</button>
         <button data-l="ne">ने</button>
       </div>
@@ -176,6 +197,9 @@
         <line x1="12" y1="3" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="21"/>
         <line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>
       <span data-nav="recover"></span></button>
+    <button data-t="connect">
+      <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3.2"/><circle cx="17" cy="17" r="3.2"/><line x1="10.3" y1="10.3" x2="14.7" y2="14.7"/></svg>
+      <span data-nav="connect"></span></button>
   </nav>
 </div>
 
@@ -215,6 +239,25 @@ const T = {
     openMaps:"地図アプリで開く", searching:"周辺を検索中…", noResults:"近くに見つかりませんでした",
     supplyNote:"営業中の店舗（コンビニ・スーパー）を表示しています", foodNote:"周辺の飲食店を表示しています（公式の炊き出し情報ではありません）",
     refreshLoc:"現在地を更新", live:"ライブ追跡中", accuracy:"精度",
+    nav_connect:"つながる",
+    connectPromoT:"家族・友人とつながる", connectPromoS:"安否状況の記録、居場所の共有、メッセージ送信ができます",
+    localOnlyNotice:"アカウントや連絡先はこの端末にのみ保存されます。他の人の端末と自動では同期されません。",
+    btnSignup:"新規登録", btnLogin:"ログイン", btnLogout:"ログアウト", btnDeleteAccount:"アカウントを削除",
+    haveAccount:"アカウントをお持ちの方", noAccount:"アカウントをお持ちでない方",
+    fieldName:"名前", fieldPhone:"電話番号", fieldEmail:"メールアドレス", fieldPassword:"パスワード", fieldConfirmPassword:"パスワード（確認）",
+    signupTitle:"新規登録", loginTitle:"ログイン",
+    verifyTitle:"認証コードの確認", verifyHint:"このプロトタイプでは実際にコードは送信されません。下のコードをそのまま入力してください。",
+    verifyCodeLabel:"認証コード", verifyBtn:"確認する", verifyWrong:"コードが違います",
+    errNameRequired:"名前を入力してください", errPhoneInvalid:"電話番号の形式を確認してください", errEmailInvalid:"メールアドレスの形式を確認してください",
+    errPasswordShort:"パスワードは6文字以上にしてください", errPasswordMismatch:"パスワードが一致しません",
+    errAccountExists:"すでにこの端末にアカウントがあります。ログインするか、削除してください。", errLoginFailed:"電話番号／メールアドレスかパスワードが違います",
+    myStatusTitle:"自分の状況", statusSafe:"無事です", statusHelp:"助けが必要", statusUnknown:"未確認",
+    shareLocationBtn:"現在地を共有", shareMsgTemplate:"【ソナエル】現在地を共有します：",
+    contactsTitle:"連絡先", addContact:"連絡先を追加", contactRelation:"関係", relFamily:"家族", relFriend:"友人",
+    contactGroup:"グループ（任意）", saveContact:"保存", noContacts:"まだ連絡先がありません",
+    editContact:"編集", deleteContact:"削除する", setStatusFor:"状況を記録",
+    sendMsgBtn:"メッセージを送る", msgSentNote:"送信履歴（この端末のみ）", groupAll:"すべて",
+    backBtn:"戻る", switchToLogin:"ログインはこちら", switchToSignup:"新規登録はこちら", accountCreated:"アカウントを作成しました",
   },
   easy:{
     nav_home:"ホーム", nav_prepare:"そなえる", nav_protect:"まもる", nav_recover:"たすける",
@@ -249,6 +292,25 @@ const T = {
     openMaps:"ちずアプリで ひらく", searching:"さがしています…", noResults:"ちかくに ありませんでした",
     supplyNote:"あいている お店（みせ）を みせています", foodNote:"ちかくの ごはんやさんです（こうしきの じょうほうでは ありません）",
     refreshLoc:"いまの ばしょを こうしん", live:"いま ついせき ちゅう", accuracy:"せいど",
+    nav_connect:"つながる",
+    connectPromoT:"かぞく・ともだちと つながる", connectPromoS:"ぶじかどうかを きろくしたり、いる ばしょを おしえたり、メッセージを おくれます",
+    localOnlyNotice:"アカウントや れんらくさきは この スマホだけに ほぞんされます。ほかの 人の スマホとは じどうで つながりません。",
+    btnSignup:"あたらしく とうろく", btnLogin:"ログイン", btnLogout:"ログアウト", btnDeleteAccount:"アカウントを けす",
+    haveAccount:"アカウントが ある 人", noAccount:"アカウントが ない 人",
+    fieldName:"なまえ", fieldPhone:"でんわばんごう", fieldEmail:"メールアドレス", fieldPassword:"パスワード", fieldConfirmPassword:"パスワード（もういちど）",
+    signupTitle:"あたらしく とうろく", loginTitle:"ログイン",
+    verifyTitle:"コードの かくにん", verifyHint:"これは しあくひんなので、ほんとうの コードは おくりません。下（した）の コードを そのまま いれてください。",
+    verifyCodeLabel:"コード", verifyBtn:"かくにんする", verifyWrong:"コードが ちがいます",
+    errNameRequired:"なまえを いれてください", errPhoneInvalid:"でんわばんごうを たしかめてください", errEmailInvalid:"メールアドレスを たしかめてください",
+    errPasswordShort:"パスワードは 6文字（もじ）いじょうに してください", errPasswordMismatch:"パスワードが ちがいます",
+    errAccountExists:"この スマホには もう アカウントが あります。ログインするか、けしてください。", errLoginFailed:"でんわばんごう／メールか パスワードが ちがいます",
+    myStatusTitle:"じぶんの じょうきょう", statusSafe:"ぶじです", statusHelp:"たすけて ほしい", statusUnknown:"わからない",
+    shareLocationBtn:"いる ばしょを おしえる", shareMsgTemplate:"【ソナエル】いま いる ばしょを おしえます：",
+    contactsTitle:"れんらくさき", addContact:"れんらくさきを ふやす", contactRelation:"かんけい", relFamily:"かぞく", relFriend:"ともだち",
+    contactGroup:"グループ（にゅうりょく しなくても いい）", saveContact:"ほぞん", noContacts:"まだ れんらくさきが ありません",
+    editContact:"なおす", deleteContact:"けす", setStatusFor:"じょうきょうを きろく",
+    sendMsgBtn:"メッセージを おくる", msgSentNote:"おくった きろく（この スマホだけ）", groupAll:"ぜんぶ",
+    backBtn:"もどる", switchToLogin:"ログインは こちら", switchToSignup:"あたらしい とうろくは こちら", accountCreated:"アカウントを つくりました",
   },
   en:{
     nav_home:"Home", nav_prepare:"Prepare", nav_protect:"Protect", nav_recover:"Recover",
@@ -283,6 +345,25 @@ const T = {
     openMaps:"Open in Maps", searching:"Searching nearby…", noResults:"Nothing found nearby",
     supplyNote:"Showing open convenience stores / supermarkets", foodNote:"Showing nearby restaurants (not official meal-distribution info)",
     refreshLoc:"Refresh location", live:"Live tracking", accuracy:"Accuracy",
+    nav_connect:"Connect",
+    connectPromoT:"Connect with family & friends", connectPromoS:"Track safety status, share your location, and send messages",
+    localOnlyNotice:"Your account and contacts are stored only on this device — they don't automatically sync with anyone else's phone.",
+    btnSignup:"Sign up", btnLogin:"Log in", btnLogout:"Log out", btnDeleteAccount:"Delete account",
+    haveAccount:"Already have an account", noAccount:"Don't have an account",
+    fieldName:"Name", fieldPhone:"Phone number", fieldEmail:"Email address", fieldPassword:"Password", fieldConfirmPassword:"Confirm password",
+    signupTitle:"Sign up", loginTitle:"Log in",
+    verifyTitle:"Confirm verification code", verifyHint:"This is a prototype — no real code is sent. Just type the code shown below.",
+    verifyCodeLabel:"Verification code", verifyBtn:"Confirm", verifyWrong:"That code doesn't match",
+    errNameRequired:"Please enter your name", errPhoneInvalid:"Please check the phone number format", errEmailInvalid:"Please check the email format",
+    errPasswordShort:"Password must be at least 6 characters", errPasswordMismatch:"Passwords don't match",
+    errAccountExists:"An account already exists on this device. Log in, or delete it first.", errLoginFailed:"Phone/email or password is incorrect",
+    myStatusTitle:"Your status", statusSafe:"I'm safe", statusHelp:"Need help", statusUnknown:"Unknown",
+    shareLocationBtn:"Share my location", shareMsgTemplate:"[SONAERU] Sharing my current location:",
+    contactsTitle:"Contacts", addContact:"Add contact", contactRelation:"Relation", relFamily:"Family", relFriend:"Friend",
+    contactGroup:"Group (optional)", saveContact:"Save", noContacts:"No contacts yet",
+    editContact:"Edit", deleteContact:"Delete", setStatusFor:"Record status",
+    sendMsgBtn:"Send message", msgSentNote:"Sent log (this device only)", groupAll:"All",
+    backBtn:"Back", switchToLogin:"Log in instead", switchToSignup:"Sign up instead", accountCreated:"Account created",
   },
   ne:{
     nav_home:"गृह", nav_prepare:"तयारी", nav_protect:"सुरक्षा", nav_recover:"सहयोग",
@@ -317,6 +398,25 @@ const T = {
     openMaps:"नक्सामा खोल्नुहोस्", searching:"नजिकै खोज्दै…", noResults:"नजिकै भेटिएन",
     supplyNote:"खुला पसल/सुपरमार्केट देखाइँदैछ", foodNote:"नजिकैका रेस्टुरेन्ट (आधिकारिक जानकारी होइन)",
     refreshLoc:"स्थान ताजा गर्नुहोस्", live:"लाइभ ट्र्याकिङ", accuracy:"शुद्धता",
+    nav_connect:"जोड्नुहोस्",
+    connectPromoT:"परिवार र साथीहरूसँग जोडिनुहोस्", connectPromoS:"सुरक्षा स्थिति रेकर्ड गर्नुहोस्, स्थान साझा गर्नुहोस्, र सन्देश पठाउनुहोस्",
+    localOnlyNotice:"तपाईंको खाता र सम्पर्कहरू यो डिभाइसमा मात्र भण्डारण हुन्छन् — यिनीहरू अरूको फोनसँग स्वतः मिल्दैनन्।",
+    btnSignup:"साइन अप", btnLogin:"लग इन", btnLogout:"लग आउट", btnDeleteAccount:"खाता मेटाउनुहोस्",
+    haveAccount:"पहिले नै खाता छ", noAccount:"खाता छैन",
+    fieldName:"नाम", fieldPhone:"फोन नम्बर", fieldEmail:"इमेल ठेगाना", fieldPassword:"पासवर्ड", fieldConfirmPassword:"पासवर्ड (पुष्टि)",
+    signupTitle:"साइन अप", loginTitle:"लग इन",
+    verifyTitle:"प्रमाणीकरण कोड पुष्टि गर्नुहोस्", verifyHint:"यो प्रोटोटाइप हो — वास्तविक कोड पठाइँदैन। तलको कोड सिधै टाइप गर्नुहोस्।",
+    verifyCodeLabel:"प्रमाणीकरण कोड", verifyBtn:"पुष्टि गर्नुहोस्", verifyWrong:"कोड मिलेन",
+    errNameRequired:"कृपया नाम लेख्नुहोस्", errPhoneInvalid:"फोन नम्बर जाँच्नुहोस्", errEmailInvalid:"इमेल ढाँचा जाँच्नुहोस्",
+    errPasswordShort:"पासवर्ड कम्तीमा ६ अक्षरको हुनुपर्छ", errPasswordMismatch:"पासवर्ड मिलेन",
+    errAccountExists:"यो डिभाइसमा पहिले नै खाता छ। लग इन गर्नुहोस् वा पहिले मेटाउनुहोस्।", errLoginFailed:"फोन/इमेल वा पासवर्ड गलत छ",
+    myStatusTitle:"तपाईंको स्थिति", statusSafe:"म सुरक्षित छु", statusHelp:"सहयोग चाहिन्छ", statusUnknown:"अज्ञात",
+    shareLocationBtn:"मेरो स्थान साझा गर्नुहोस्", shareMsgTemplate:"【सोनाएरु】मेरो हालको स्थान साझा गर्दै:",
+    contactsTitle:"सम्पर्कहरू", addContact:"सम्पर्क थप्नुहोस्", contactRelation:"सम्बन्ध", relFamily:"परिवार", relFriend:"साथी",
+    contactGroup:"समूह (वैकल्पिक)", saveContact:"सुरक्षित गर्नुहोस्", noContacts:"अहिलेसम्म कुनै सम्पर्क छैन",
+    editContact:"सम्पादन", deleteContact:"मेटाउनुहोस्", setStatusFor:"स्थिति रेकर्ड गर्नुहोस्",
+    sendMsgBtn:"सन्देश पठाउनुहोस्", msgSentNote:"पठाइएको लग (यो डिभाइस मात्र)", groupAll:"सबै",
+    backBtn:"फिर्ता", switchToLogin:"बरु लग इन गर्नुहोस्", switchToSignup:"बरु साइन अप गर्नुहोस्", accountCreated:"खाता सिर्जना भयो",
   }
 };
 
@@ -329,7 +429,13 @@ const S = {
   coords:null, locStatus:"pending", placeName:null, accuracy:null, lastDataFetch:null,
   weather:null, weatherStatus:"loading",
   shelters:{ shelter:null, water:null, supply:null, food:null },
+  connectView:"promo", connectContactId:null, connectGroup:"all",
+  pendingSignup:null, formError:"",
+  signupDraft:{ name:"", phone:"", email:"", password:"", confirm:"" },
+  loginDraft:{ id:"", password:"" },
+  contactDraft:{ name:"", phone:"", email:"", relation:"family", group:"" },
 };
+const escAttr = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
 const t = k => (T[S.lang] && T[S.lang][k]) || T.ja[k] || k;
 const $ = s => document.querySelector(s);
 const app = $("#app");
@@ -534,6 +640,163 @@ function toast(msg){
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),1800);
 }
 
+/* ---------------- connect: local account, contacts, security ----------------
+   No backend exists for this app (static site), so "friends/family" here is a
+   local address-book the logged-in user maintains themselves — not synced
+   accounts. See sonaeru_* localStorage keys. Passwords are salted+hashed with
+   the Web Crypto API; never stored in plaintext. */
+const LS = {
+  account:"sonaeru_account", loggedIn:"sonaeru_loggedIn", myStatus:"sonaeru_myStatus",
+  contacts:"sonaeru_contacts", outbox:"sonaeru_outbox",
+};
+const lsGet = (k, fallback) => { try{ const v=localStorage.getItem(k); return v==null?fallback:JSON.parse(v); }catch(e){ return fallback; } };
+const lsSet = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+function bytesToHex(buf){ return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", enc);
+  return bytesToHex(digest);
+}
+function randomSaltHex(){ return bytesToHex(crypto.getRandomValues(new Uint8Array(16)).buffer); }
+async function hashPassword(password, salt){ return sha256Hex(salt + ":" + password); }
+function genDemoCode(){ return String(Math.floor(100000 + crypto.getRandomValues(new Uint32Array(1))[0] % 900000)); }
+
+const isValidEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+const isValidPhone = s => /^[+\d][\d\s-]{6,14}$/.test(s.trim());
+
+function loadAccount(){ return lsGet(LS.account, null); }
+function isLoggedIn(){ return !!loadAccount() && localStorage.getItem(LS.loggedIn)==="1"; }
+function loadMyStatus(){ return lsGet(LS.myStatus, { status:"unknown", updatedAt:null }); }
+function setMyStatus(status){ lsSet(LS.myStatus, { status, updatedAt: Date.now() }); render(); }
+function loadContacts(){ return lsGet(LS.contacts, []); }
+function saveContacts(list){ lsSet(LS.contacts, list); }
+function loadOutbox(){ return lsGet(LS.outbox, []); }
+
+function validateSignup(d){
+  if(!d.name.trim()) return t("errNameRequired");
+  if(!isValidPhone(d.phone)) return t("errPhoneInvalid");
+  if(!isValidEmail(d.email)) return t("errEmailInvalid");
+  if(d.password.length < 6) return t("errPasswordShort");
+  if(d.password !== d.confirm) return t("errPasswordMismatch");
+  return "";
+}
+
+function startSignup(d){
+  if(loadAccount()){ S.formError = t("errAccountExists"); render(); return; }
+  const err = validateSignup(d);
+  if(err){ S.formError = err; render(); return; }
+  S.formError = "";
+  S.pendingSignup = { ...d, code: genDemoCode() };
+  S.connectView = "verify";
+  render();
+}
+
+async function confirmSignup(enteredCode){
+  const p = S.pendingSignup;
+  if(!p) return;
+  if(enteredCode.trim() !== p.code){ S.formError = t("verifyWrong"); render(); return; }
+  const salt = randomSaltHex();
+  const passHash = await hashPassword(p.password, salt);
+  lsSet(LS.account, { name:p.name, phone:p.phone, email:p.email, passHash, passSalt:salt, createdAt:Date.now() });
+  localStorage.setItem(LS.loggedIn, "1");
+  S.pendingSignup = null; S.formError = ""; S.connectView = "home";
+  S.signupDraft = { name:"", phone:"", email:"", password:"", confirm:"" };
+  toast(t("accountCreated"));
+  render();
+}
+
+async function attemptLogin(identifier, password){
+  const acc = loadAccount();
+  if(!acc){ S.formError = t("errLoginFailed"); render(); return; }
+  const idMatch = identifier.trim()===acc.phone.trim() || identifier.trim().toLowerCase()===acc.email.trim().toLowerCase();
+  const passHash = await hashPassword(password, acc.passSalt);
+  if(!idMatch || passHash !== acc.passHash){ S.formError = t("errLoginFailed"); render(); return; }
+  localStorage.setItem(LS.loggedIn, "1");
+  S.formError = ""; S.connectView = "home";
+  S.loginDraft = { id:"", password:"" };
+  render();
+}
+
+function logout(){
+  localStorage.removeItem(LS.loggedIn);
+  S.connectView = "promo";
+  render();
+}
+function deleteAccount(){
+  [LS.account, LS.loggedIn, LS.myStatus, LS.contacts, LS.outbox].forEach(k=>localStorage.removeItem(k));
+  S.connectView = "promo"; S.connectContactId = null;
+  render();
+}
+
+function addContact(d){
+  if(!d.name.trim()){ S.formError = t("errNameRequired"); render(); return; }
+  const list = loadContacts();
+  list.push({ id:String(Date.now()), name:d.name, phone:d.phone||"", email:d.email||"",
+    relation:d.relation||"friend", group:d.group||"", status:"unknown", statusUpdatedAt:null });
+  saveContacts(list);
+  S.formError = ""; S.connectView = "home";
+  S.contactDraft = { name:"", phone:"", email:"", relation:"family", group:"" };
+  render();
+}
+function setContactStatus(id, status){
+  const list = loadContacts();
+  const c = list.find(x=>x.id===id);
+  if(c){ c.status = status; c.statusUpdatedAt = Date.now(); saveContacts(list); render(); }
+}
+function deleteContactById(id){
+  saveContacts(loadContacts().filter(c=>c.id!==id));
+  S.connectView = "home"; S.connectContactId = null;
+  render();
+}
+
+/* real hand-off to the phone's own apps — no custom backend needed for this to work */
+function buildLocationLink(){
+  if(!S.coords) return null;
+  return `https://www.google.com/maps?q=${S.coords.lat},${S.coords.lon}`;
+}
+function shareToContact(contact, text){
+  const via = contact.phone ? "sms" : contact.email ? "email" : "share";
+  const outbox = loadOutbox();
+  outbox.push({ id:String(Date.now()), contactId:contact.id, text, sentAt:Date.now(), via });
+  lsSet(LS.outbox, outbox);
+  // prefer a targeted hand-off since we already know exactly who this is
+  if(contact.phone){
+    window.location.href = `sms:${contact.phone}?body=${encodeURIComponent(text)}`;
+  } else if(contact.email){
+    window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent("SONAERU")}&body=${encodeURIComponent(text)}`;
+  } else if(navigator.share){
+    navigator.share({ text }).catch(()=>{});
+  } else {
+    navigator.clipboard?.writeText(text);
+    toast(t("msgSentNote"));
+  }
+  render();
+}
+function shareMyLocation(contact){
+  const link = buildLocationLink();
+  if(!link){ toast(t("locating")); return; }
+  shareToContact(contact, `${t("shareMsgTemplate")} ${link}`);
+}
+function shareLocationToContactId(id){
+  const c = loadContacts().find(x=>x.id===id);
+  if(c) shareMyLocation(c);
+}
+function sendPresetMessage(id){
+  const c = loadContacts().find(x=>x.id===id);
+  const acc = loadAccount();
+  if(!c || !acc) return;
+  shareToContact(c, `${acc.name} : ${t("statusSafe")}`);
+}
+/* generic "share sheet" for your own location, no specific contact needed */
+function shareMyLocationGeneral(){
+  const link = buildLocationLink();
+  if(!link){ toast(t("locating")); return; }
+  const text = `${t("shareMsgTemplate")} ${link}`;
+  if(navigator.share){ navigator.share({ text }).catch(()=>{}); }
+  else { navigator.clipboard?.writeText(text); toast(text); }
+}
+
 /* ---------------- screens ---------------- */
 function screenHome(){
   const alertCard = S.phase==="hassai" ? `
@@ -670,7 +933,7 @@ function screenProtect(){
     <label class="check"><input type="checkbox" ${S.checklist.act2?"checked":""} onchange="toggleCheck('act2')"><span>${t("act2")}</span></label>
     <label class="check"><input type="checkbox" ${S.checklist.act3?"checked":""} onchange="toggleCheck('act3')"><span>${t("act3")}</span></label>
   </div>
-  <button class="btn" onclick="toast(t('safeSent'))">${t("sendSafe")}</button>`;
+  <button class="btn" onclick="sendSafeStatus()">${t("sendSafe")}</button>`;
 }
 
 function screenRecover(){
@@ -711,6 +974,184 @@ function screenRecover(){
   </div>`;
 }
 
+function fieldErr(){ return S.formError ? `<p class="fielderr">${S.formError}</p>` : ""; }
+
+function screenConnect(){
+  if(!isLoggedIn()){
+    if(S.connectView==="signup") return connectSignupForm();
+    if(S.connectView==="verify") return connectVerifyForm();
+    if(S.connectView==="login") return connectLoginForm();
+    return connectPromo();
+  }
+  if(S.connectView==="add") return connectAddContactForm();
+  if(S.connectView==="detail" && S.connectContactId) return connectContactDetail();
+  return connectHome();
+}
+
+function connectPromo(){
+  return `
+  <div class="card soft" style="text-align:center;padding:26px 18px">
+    <div class="icoc" style="background:var(--accent);margin:0 auto 12px;width:52px;height:52px;border-radius:16px">
+      <svg viewBox="0 0 24 24" style="width:26px;height:26px"><circle cx="8" cy="8" r="3.2"/><circle cx="17" cy="17" r="3.2"/><line x1="10.3" y1="10.3" x2="14.7" y2="14.7"/></svg>
+    </div>
+    <h3 style="font-size:16px">${t("connectPromoT")}</h3>
+    <p class="sub">${t("connectPromoS")}</p>
+  </div>
+  <button class="btn" onclick="S.connectView='signup';S.formError='';render()">${t("btnSignup")}</button>
+  <button class="btn line" style="margin-top:10px" onclick="S.connectView='login';S.formError='';render()">${t("btnLogin")}</button>
+  <p class="note" style="margin-top:16px">${t("localOnlyNotice")}</p>`;
+}
+
+function connectSignupForm(){
+  const d = S.signupDraft;
+  return `
+  <div class="card">
+    <h3>${t("signupTitle")}</h3>
+    <div class="field"><label>${t("fieldName")}</label><input id="cf_name" type="text" autocomplete="name" value="${escAttr(d.name)}"></div>
+    <div class="field"><label>${t("fieldPhone")}</label><input id="cf_phone" type="tel" autocomplete="tel" value="${escAttr(d.phone)}"></div>
+    <div class="field"><label>${t("fieldEmail")}</label><input id="cf_email" type="email" autocomplete="email" value="${escAttr(d.email)}"></div>
+    <div class="field"><label>${t("fieldPassword")}</label><input id="cf_pass" type="password" autocomplete="new-password" value="${escAttr(d.password)}"></div>
+    <div class="field"><label>${t("fieldConfirmPassword")}</label><input id="cf_pass2" type="password" autocomplete="new-password" value="${escAttr(d.confirm)}"></div>
+    ${fieldErr()}
+    <button class="btn" onclick="submitSignup()">${t("btnSignup")}</button>
+    <button class="linkbtn" style="margin-top:12px;display:block" onclick="S.connectView='login';S.formError='';render()">${t("switchToLogin")}</button>
+  </div>`;
+}
+function submitSignup(){
+  S.signupDraft = {
+    name: document.getElementById("cf_name").value,
+    phone: document.getElementById("cf_phone").value,
+    email: document.getElementById("cf_email").value,
+    password: document.getElementById("cf_pass").value,
+    confirm: document.getElementById("cf_pass2").value,
+  };
+  startSignup(S.signupDraft);
+}
+
+function connectVerifyForm(){
+  const p = S.pendingSignup;
+  return `
+  <div class="card">
+    <h3>${t("verifyTitle")}</h3>
+    <p class="sub">${t("verifyHint")}</p>
+    <div class="card soft" style="text-align:center;margin:12px 0">
+      <div class="pts" style="font-size:28px;letter-spacing:6px">${p ? p.code : ""}</div>
+    </div>
+    <div class="field"><label>${t("verifyCodeLabel")}</label><input id="cf_code" type="text" inputmode="numeric" maxlength="6"></div>
+    ${fieldErr()}
+    <button class="btn" onclick="confirmSignup(document.getElementById('cf_code').value)">${t("verifyBtn")}</button>
+  </div>`;
+}
+
+function connectLoginForm(){
+  const d = S.loginDraft;
+  return `
+  <div class="card">
+    <h3>${t("loginTitle")}</h3>
+    <div class="field"><label>${t("fieldPhone")} / ${t("fieldEmail")}</label><input id="cf_id" type="text" value="${escAttr(d.id)}"></div>
+    <div class="field"><label>${t("fieldPassword")}</label><input id="cf_pass" type="password" autocomplete="current-password" value="${escAttr(d.password)}"></div>
+    ${fieldErr()}
+    <button class="btn" onclick="submitLogin()">${t("btnLogin")}</button>
+    <button class="linkbtn" style="margin-top:12px;display:block" onclick="S.connectView='signup';S.formError='';render()">${t("switchToSignup")}</button>
+  </div>`;
+}
+function submitLogin(){
+  S.loginDraft = { id: document.getElementById("cf_id").value, password: document.getElementById("cf_pass").value };
+  attemptLogin(S.loginDraft.id, S.loginDraft.password);
+}
+
+function connectHome(){
+  const acc = loadAccount();
+  const my = loadMyStatus();
+  const contacts = loadContacts();
+  const groups = ["all", ...new Set(contacts.map(c=>c.group).filter(Boolean))];
+  const filtered = S.connectGroup==="all" ? contacts : contacts.filter(c=>c.group===S.connectGroup);
+  const statusBtn = (key,label) => `<button class="${my.status===key?`on ${key}`:""}" onclick="setMyStatus('${key}')">${label}</button>`;
+  const chip = g => `<button class="${S.connectGroup===g?"on":""}" onclick="S.connectGroup='${g}';render()">${g==="all"?t("groupAll"):g}</button>`;
+  const rows = filtered.length ? filtered.map(c=>`
+    <div class="listitem" style="cursor:pointer" onclick="S.connectContactId='${c.id}';S.connectView='detail';S.formError='';render()">
+      <div class="icoc" style="background:${c.relation==='family'?'var(--p1)':'var(--accent)'}">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+      </div>
+      <div class="grow"><b style="font-size:13.5px">${c.name}</b>
+        <div class="qty">${c.relation==="family"?t("relFamily"):t("relFriend")}${c.group?" · "+c.group:""}</div></div>
+      <span class="badge ${c.status==='safe'?'ok':c.status==='help'?'alert2':'gray'}">${c.status==='safe'?t("statusSafe"):c.status==='help'?t("statusHelp"):t("statusUnknown")}</span>
+    </div>`).join("") : `<p class="sub">${t("noContacts")}</p>`;
+  return `
+  <div class="card">
+    <div class="row"><div class="grow"><h3>${acc.name}</h3><p class="sub">${acc.phone} · ${acc.email}</p></div></div>
+    <span class="eyebrow" style="margin-top:10px;display:block">${t("myStatusTitle")}</span>
+    <div class="statusrow" style="margin-top:6px">
+      ${statusBtn("safe", t("statusSafe"))}${statusBtn("help", t("statusHelp"))}${statusBtn("unknown", t("statusUnknown"))}
+    </div>
+    <button class="btn line" style="margin-top:12px" onclick="shareMyLocationGeneral()">${t("shareLocationBtn")}</button>
+  </div>
+  <div class="card">
+    <div class="row"><h3 class="grow">${t("contactsTitle")}</h3>
+      <button class="linkbtn" onclick="S.connectView='add';S.formError='';render()">+ ${t("addContact")}</button></div>
+    ${groups.length>1 ? `<div class="chips" style="margin-top:8px">${groups.map(chip).join("")}</div>` : ""}
+    <div style="margin-top:4px">${rows}</div>
+  </div>
+  <button class="btn line" onclick="logout()">${t("btnLogout")}</button>
+  <p class="note" style="margin-top:12px">${t("localOnlyNotice")}</p>`;
+}
+
+function connectAddContactForm(){
+  const d = S.contactDraft;
+  return `
+  <button class="linkbtn" onclick="S.connectView='home';render()">← ${t("backBtn")}</button>
+  <div class="card" style="margin-top:10px">
+    <h3>${t("addContact")}</h3>
+    <div class="field"><label>${t("fieldName")}</label><input id="ac_name" type="text" value="${escAttr(d.name)}"></div>
+    <div class="field"><label>${t("fieldPhone")}</label><input id="ac_phone" type="tel" value="${escAttr(d.phone)}"></div>
+    <div class="field"><label>${t("fieldEmail")}</label><input id="ac_email" type="email" value="${escAttr(d.email)}"></div>
+    <div class="field"><label>${t("contactRelation")}</label>
+      <select id="ac_relation">
+        <option value="family" ${d.relation==="family"?"selected":""}>${t("relFamily")}</option>
+        <option value="friend" ${d.relation==="friend"?"selected":""}>${t("relFriend")}</option>
+      </select>
+    </div>
+    <div class="field"><label>${t("contactGroup")}</label><input id="ac_group" type="text" value="${escAttr(d.group)}"></div>
+    ${fieldErr()}
+    <button class="btn" onclick="submitAddContact()">${t("saveContact")}</button>
+  </div>`;
+}
+function submitAddContact(){
+  S.contactDraft = {
+    name: document.getElementById("ac_name").value,
+    phone: document.getElementById("ac_phone").value,
+    email: document.getElementById("ac_email").value,
+    relation: document.getElementById("ac_relation").value,
+    group: document.getElementById("ac_group").value,
+  };
+  addContact(S.contactDraft);
+}
+
+function connectContactDetail(){
+  const c = loadContacts().find(x=>x.id===S.connectContactId);
+  if(!c) return (S.connectView="home", connectHome());
+  const statusBtn = (key,label) => `<button class="${c.status===key?`on ${key}`:""}" onclick="setContactStatus('${c.id}','${key}')">${label}</button>`;
+  const canReach = !!(c.phone || c.email);
+  return `
+  <button class="linkbtn" onclick="S.connectView='home';render()">← ${t("backBtn")}</button>
+  <div class="card" style="margin-top:10px">
+    <h3>${c.name}</h3>
+    <p class="sub">${c.relation==="family"?t("relFamily"):t("relFriend")}${c.group?" · "+c.group:""}</p>
+    <p class="sub">${[c.phone, c.email].filter(Boolean).join(" · ")}</p>
+    <span class="eyebrow" style="margin-top:10px;display:block">${t("setStatusFor")}</span>
+    <div class="statusrow" style="margin-top:6px">
+      ${statusBtn("safe", t("statusSafe"))}${statusBtn("help", t("statusHelp"))}${statusBtn("unknown", t("statusUnknown"))}
+    </div>
+    ${c.statusUpdatedAt ? `<p class="note">${new Date(c.statusUpdatedAt).toLocaleString()}</p>` : ""}
+  </div>
+  <div class="card">
+    <button class="btn" ${canReach?"":"disabled"} onclick="shareLocationToContactId('${c.id}')">${t("shareLocationBtn")}</button>
+    <button class="btn line" style="margin-top:10px" ${canReach?"":"disabled"} onclick="sendPresetMessage('${c.id}')">${t("sendMsgBtn")}</button>
+    ${!canReach ? `<p class="note">${t("errPhoneInvalid")}</p>` : ""}
+  </div>
+  <button class="btn alert" onclick="deleteContactById('${c.id}')">${t("deleteContact")}</button>`;
+}
+
 /* ---------------- render ---------------- */
 let _lastTab = null;
 function render(){
@@ -729,7 +1170,7 @@ function render(){
   // demo btn
   $("#demoBtn").textContent = S.phase==="hassai" ? t("demoStop") : t("demoStart");
   // screen
-  const scr = { home:screenHome, prepare:screenPrepare, protect:screenProtect, recover:screenRecover }[S.tab];
+  const scr = { home:screenHome, prepare:screenPrepare, protect:screenProtect, recover:screenRecover, connect:screenConnect }[S.tab];
   $("#screen").innerHTML = scr();
   if(_lastTab !== S.tab){ $("#screen").scrollTop = 0; _lastTab = S.tab; }
   // live map (mounted after innerHTML so the container elements exist)
@@ -750,6 +1191,10 @@ function setRec(k){ S.recTab=k; render(); }
 function restock(){ S.points+=5; toast("+5 "+t("pointsUnit")); render(); }
 function answerQuiz(ok){ if(ok){ S.points+=10; S.quizDone=true; toast(t("quizCorrect")); render(); } else { toast(t("quizWrong")); } }
 function toggleCheck(key){ S.checklist[key] = !S.checklist[key]; }
+function sendSafeStatus(){
+  if(isLoggedIn()) setMyStatus("safe"); // no-op for anonymous users — unchanged from before
+  toast(t("safeSent"));
+}
 function toggleDemo(){
   S.userToggled = true;
   S.phase = S.phase==="hassai" ? "heiji" : "hassai";
