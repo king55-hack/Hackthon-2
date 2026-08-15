@@ -258,6 +258,9 @@ const T = {
     editContact:"編集", deleteContact:"削除する", setStatusFor:"状況を記録",
     sendMsgBtn:"メッセージを送る", msgSentNote:"送信履歴（この端末のみ）", groupAll:"すべて",
     backBtn:"戻る", switchToLogin:"ログインはこちら", switchToSignup:"新規登録はこちら", accountCreated:"アカウントを作成しました",
+    planNotSet:"まだ登録されていません", createPlan:"計画を作成", meetingPoint:"集合場所",
+    outContact:"非常時の連絡先", planNotes:"メモ（任意）", useNearestShelter:"最寄りの避難所を使う",
+    quizAllDone:"全問正解です！お疲れさまでした", stockUpdated:"更新済みです",
   },
   easy:{
     nav_home:"ホーム", nav_prepare:"そなえる", nav_protect:"まもる", nav_recover:"たすける",
@@ -311,6 +314,9 @@ const T = {
     editContact:"なおす", deleteContact:"けす", setStatusFor:"じょうきょうを きろく",
     sendMsgBtn:"メッセージを おくる", msgSentNote:"おくった きろく（この スマホだけ）", groupAll:"ぜんぶ",
     backBtn:"もどる", switchToLogin:"ログインは こちら", switchToSignup:"あたらしい とうろくは こちら", accountCreated:"アカウントを つくりました",
+    planNotSet:"まだ とうろくして いません", createPlan:"けいかくを つくる", meetingPoint:"あつまる ばしょ",
+    outContact:"きんきゅうの れんらくさき", planNotes:"メモ（にゅうりょく しなくても いい）", useNearestShelter:"いちばん ちかい にげる ばしょを つかう",
+    quizAllDone:"ぜんぶ せいかいです！ おつかれさまでした", stockUpdated:"こうしん しました",
   },
   en:{
     nav_home:"Home", nav_prepare:"Prepare", nav_protect:"Protect", nav_recover:"Recover",
@@ -364,6 +370,9 @@ const T = {
     editContact:"Edit", deleteContact:"Delete", setStatusFor:"Record status",
     sendMsgBtn:"Send message", msgSentNote:"Sent log (this device only)", groupAll:"All",
     backBtn:"Back", switchToLogin:"Log in instead", switchToSignup:"Sign up instead", accountCreated:"Account created",
+    planNotSet:"Not set up yet", createPlan:"Create plan", meetingPoint:"Meeting point",
+    outContact:"Emergency contact", planNotes:"Notes (optional)", useNearestShelter:"Use nearest shelter",
+    quizAllDone:"All correct — nice work!", stockUpdated:"Already updated",
   },
   ne:{
     nav_home:"गृह", nav_prepare:"तयारी", nav_protect:"सुरक्षा", nav_recover:"सहयोग",
@@ -417,13 +426,46 @@ const T = {
     editContact:"सम्पादन", deleteContact:"मेटाउनुहोस्", setStatusFor:"स्थिति रेकर्ड गर्नुहोस्",
     sendMsgBtn:"सन्देश पठाउनुहोस्", msgSentNote:"पठाइएको लग (यो डिभाइस मात्र)", groupAll:"सबै",
     backBtn:"फिर्ता", switchToLogin:"बरु लग इन गर्नुहोस्", switchToSignup:"बरु साइन अप गर्नुहोस्", accountCreated:"खाता सिर्जना भयो",
+    planNotSet:"अझै सेटअप गरिएको छैन", createPlan:"योजना बनाउनुहोस्", meetingPoint:"भेट्ने ठाउँ",
+    outContact:"आपतकालीन सम्पर्क", planNotes:"नोट (वैकल्पिक)", useNearestShelter:"नजिकको आश्रय प्रयोग गर्नुहोस्",
+    quizAllDone:"सबै सही! धेरै राम्रो", stockUpdated:"पहिले नै अद्यावधिक भयो",
   }
+};
+
+/* ---------------- quiz bank (same order/correct-index across languages) ---------------- */
+const QUIZZES = {
+  ja: [
+    { q:"大雨で避難する時、正しいのは？", opts:["車で低い道を通る","歩いて高い所へ"], correct:1 },
+    { q:"地震が起きたら、まず何をする？", opts:["すぐ外に飛び出す","丈夫な机の下に隠れる"], correct:1 },
+    { q:"非常持ち出し袋に入れるべきものは？", opts:["普段使わない物","水・食料・薬"], correct:1 },
+    { q:"「ローリングストック」とはどんな方法？", opts:["備蓄を普段から食べて買い足す方法","一度買ったら絶対に使わないこと"], correct:0 },
+  ],
+  easy: [
+    { q:"大雨（おおあめ）の とき、ただしいのは？", opts:["車（くるま）で ひくい 道（みち）","あるいて たかい ところ"], correct:1 },
+    { q:"地震（じしん）が きたら、さいしょに 何（なに）を する？", opts:["すぐ そとに でる","じょうぶな 机（つくえ）の したに かくれる"], correct:1 },
+    { q:"非常（ひじょう）バッグに 入（い）れる ものは？", opts:["ふだん つかわない もの","水（みず）・たべもの・くすり"], correct:1 },
+    { q:"「ローリングストック」って なに？", opts:["びちくを ふだんから たべて かいたす ほうほう","いちど かったら ぜったい つかわない こと"], correct:0 },
+  ],
+  en: [
+    { q:"When evacuating in heavy rain, which is right?", opts:["Drive on low roads","Walk to high ground"], correct:1 },
+    { q:"If an earthquake hits, what should you do first?", opts:["Run outside immediately","Take cover under a sturdy table"], correct:1 },
+    { q:"What should be in your emergency go-bag?", opts:["Things you never use","Water, food, and medicine"], correct:1 },
+    { q:"What is \"rolling stock\"?", opts:["Eating and replacing everyday supplies regularly","Buying supplies once and never touching them"], correct:0 },
+  ],
+  ne: [
+    { q:"भारी वर्षामा जाँदा कुन सही?", opts:["गाडीमा होचो बाटो","हिँडेर अग्लो ठाउँ"], correct:1 },
+    { q:"भूकम्प आउँदा पहिले के गर्ने?", opts:["तुरुन्त बाहिर दौडने","बलियो टेबलमुनि लुक्ने"], correct:1 },
+    { q:"आपतकालीन झोलामा के राख्ने?", opts:["नचलाइने कुरा","पानी, खाना र औषधि"], correct:1 },
+    { q:"\"रोलिङ स्टक\" भनेको के हो?", opts:["दैनिक प्रयोग गरेर भण्डार भर्ने तरिका","एकपटक किनेर कहिल्यै नचलाउने"], correct:0 },
+  ],
 };
 
 /* ---------------- state ---------------- */
 const TOKYO_FALLBACK = { lat:35.6762, lon:139.6503 };
 const S = {
-  lang:"ja", phase:"heiji", tab:"home", points:120, recTab:"shelter", quizDone:false,
+  lang:"ja", phase:"heiji", tab:"home", points:120, recTab:"shelter", quizIndex:0,
+  stockRestocked:false,
+  planEditing:false, planDraft:{ meetingPoint:"", contactName:"", contactPhone:"", notes:"" },
   checklist:{ act1:false, act2:false, act3:false },
   userToggled:false,
   coords:null, locStatus:"pending", placeName:null, accuracy:null, lastDataFetch:null,
@@ -434,6 +476,7 @@ const S = {
   signupDraft:{ name:"", phone:"", email:"", password:"", confirm:"" },
   loginDraft:{ id:"", password:"" },
   contactDraft:{ name:"", phone:"", email:"", relation:"family", group:"" },
+  verifyCodeDraft:"",
 };
 const escAttr = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
 const t = k => (T[S.lang] && T[S.lang][k]) || T.ja[k] || k;
@@ -647,7 +690,7 @@ function toast(msg){
    the Web Crypto API; never stored in plaintext. */
 const LS = {
   account:"sonaeru_account", loggedIn:"sonaeru_loggedIn", myStatus:"sonaeru_myStatus",
-  contacts:"sonaeru_contacts", outbox:"sonaeru_outbox",
+  contacts:"sonaeru_contacts", outbox:"sonaeru_outbox", evacPlan:"sonaeru_evacplan",
 };
 const lsGet = (k, fallback) => { try{ const v=localStorage.getItem(k); return v==null?fallback:JSON.parse(v); }catch(e){ return fallback; } };
 const lsSet = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -673,6 +716,23 @@ function loadContacts(){ return lsGet(LS.contacts, []); }
 function saveContacts(list){ lsSet(LS.contacts, list); }
 function loadOutbox(){ return lsGet(LS.outbox, []); }
 
+/* family evacuation plan — usable with or without an account, so it's kept
+   separate from the sonaeru_account/contacts data and untouched by deleteAccount() */
+function loadEvacPlan(){ return lsGet(LS.evacPlan, null); }
+function saveEvacPlan(d){
+  lsSet(LS.evacPlan, { meetingPoint:d.meetingPoint||"", contactName:d.contactName||"", contactPhone:d.contactPhone||"", notes:d.notes||"", updatedAt:Date.now() });
+  S.planEditing = false;
+  render();
+}
+function openPlanEditor(){
+  const existing = loadEvacPlan();
+  S.planDraft = existing
+    ? { meetingPoint:existing.meetingPoint, contactName:existing.contactName, contactPhone:existing.contactPhone, notes:existing.notes }
+    : { meetingPoint:"", contactName:"", contactPhone:"", notes:"" };
+  S.planEditing = true;
+  render();
+}
+
 function validateSignup(d){
   if(!d.name.trim()) return t("errNameRequired");
   if(!isValidPhone(d.phone)) return t("errPhoneInvalid");
@@ -688,6 +748,7 @@ function startSignup(d){
   if(err){ S.formError = err; render(); return; }
   S.formError = "";
   S.pendingSignup = { ...d, code: genDemoCode() };
+  S.verifyCodeDraft = "";
   S.connectView = "verify";
   render();
 }
@@ -702,6 +763,7 @@ async function confirmSignup(enteredCode){
   localStorage.setItem(LS.loggedIn, "1");
   S.pendingSignup = null; S.formError = ""; S.connectView = "home";
   S.signupDraft = { name:"", phone:"", email:"", password:"", confirm:"" };
+  S.verifyCodeDraft = "";
   toast(t("accountCreated"));
   render();
 }
@@ -875,12 +937,61 @@ function stockRow(icon,name,qty,soon){
     <span class="badge ${soon?"warn":"ok"}">${soon?t("expSoon"):t("enough")}</span>
   </div>`;
 }
-function screenPrepare(){
-  const quiz = S.quizDone ? `<p class="sub" style="color:var(--p1);font-weight:700">${t("quizCorrect")}</p>` :
-   `<p class="sub">${t("quizQ")}</p>
+
+function quizSection(){
+  const bank = QUIZZES[S.lang] || QUIZZES.ja;
+  if(S.quizIndex >= bank.length){
+    return `<p class="sub" style="color:var(--p1);font-weight:700">${t("quizAllDone")}</p>`;
+  }
+  const q = bank[S.quizIndex];
+  return `<p class="sub">${q.q}</p>
     <div class="row" style="gap:8px;margin-top:8px">
-      <button class="btn line" onclick="answerQuiz(false)">${t("quizA1")}</button>
-      <button class="btn line" onclick="answerQuiz(true)">${t("quizA2")}</button></div>`;
+      ${q.opts.map((opt,i)=>`<button class="btn line" onclick="answerQuiz(${i===q.correct})">${opt}</button>`).join("")}
+    </div>`;
+}
+
+function planSection(){
+  const plan = loadEvacPlan();
+  if(!plan){
+    return `<h3>${t("plan")}</h3><p class="sub">${t("planNotSet")}</p>
+      <button class="btn line" style="margin-top:10px" onclick="openPlanEditor()">${t("createPlan")}</button>`;
+  }
+  return `
+    <div class="row"><div class="grow"><h3>${t("plan")}</h3>
+      <p class="sub">${t("meetingPoint")}: ${plan.meetingPoint || "—"}</p>
+      <p class="sub">${t("outContact")}: ${plan.contactName || "—"}${plan.contactPhone ? " · "+plan.contactPhone : ""}</p>
+      ${plan.notes ? `<p class="sub">${plan.notes}</p>` : ""}</div>
+      <span class="badge ok">✓</span></div>
+    <button class="btn line" style="margin-top:10px" onclick="openPlanEditor()">${t("editPlan")}</button>`;
+}
+
+function screenPlanForm(){
+  const d = S.planDraft;
+  const nearest = S.shelters.shelter && S.shelters.shelter.status==="ok" ? S.shelters.shelter.items[0] : null;
+  const contactChips = isLoggedIn() && loadContacts().length
+    ? `<div class="chips" style="margin-top:6px">${loadContacts().map(c=>
+        `<button onclick="S.planDraft.contactName='${escAttr(c.name)}';S.planDraft.contactPhone='${escAttr(c.phone)}';render()">${c.name}</button>`).join("")}</div>`
+    : "";
+  return `
+  <button class="linkbtn" onclick="S.planEditing=false;render()">← ${t("backBtn")}</button>
+  <div class="card" style="margin-top:10px">
+    <h3>${t("plan")}</h3>
+    <div class="field"><label>${t("meetingPoint")}</label>
+      <input id="pf_meet" type="text" value="${escAttr(d.meetingPoint)}" oninput="S.planDraft.meetingPoint=this.value"></div>
+    ${nearest ? `<button class="linkbtn" onclick="S.planDraft.meetingPoint='${escAttr(nearest.name)}';render()">${t("useNearestShelter")}: ${nearest.name}</button>` : ""}
+    <div class="field" style="margin-top:12px"><label>${t("outContact")}</label>
+      <input id="pf_cname" type="text" value="${escAttr(d.contactName)}" oninput="S.planDraft.contactName=this.value"></div>
+    ${contactChips}
+    <div class="field"><label>${t("fieldPhone")}</label>
+      <input id="pf_cphone" type="tel" value="${escAttr(d.contactPhone)}" oninput="S.planDraft.contactPhone=this.value"></div>
+    <div class="field"><label>${t("planNotes")}</label>
+      <input id="pf_notes" type="text" value="${escAttr(d.notes)}" oninput="S.planDraft.notes=this.value"></div>
+    <button class="btn" onclick="saveEvacPlan(S.planDraft)">${t("saveContact")}</button>
+  </div>`;
+}
+
+function screenPrepare(){
+  if(S.planEditing) return screenPlanForm();
   return `
   <div class="card soft">
     <span class="eyebrow">${t("riskH")}</span>
@@ -889,18 +1000,16 @@ function screenPrepare(){
   </div>
   <div class="card">
     <span class="eyebrow">${t("stock")}</span>
-    ${stockRow('<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>', t("stockRice"), "12 "+t("unitMeal"), true)}
+    ${stockRow('<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>', t("stockRice"), "12 "+t("unitMeal"), !S.stockRestocked)}
     ${stockRow('<path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>', t("stockWater"), "6 "+t("unitBottle"), false)}
     ${stockRow('<rect x="6" y="3" width="12" height="18" rx="2"/><line x1="10" y1="7" x2="14" y2="7"/>', t("stockLight"), "2 "+t("unitPc"), false)}
-    <button class="btn" style="margin-top:12px" onclick="restock()">${t("useReplace")}</button>
+    <button class="btn" style="margin-top:12px" ${S.stockRestocked?"disabled":""} onclick="restock()">${S.stockRestocked ? t("stockUpdated") : t("useReplace")}</button>
   </div>
   <div class="card">
-    <span class="eyebrow">${t("quizT")}</span><div style="height:4px"></div>${quiz}
+    <span class="eyebrow">${t("quizT")}</span><div style="height:4px"></div>${quizSection()}
   </div>
   <div class="card">
-    <div class="row"><div class="grow"><h3>${t("plan")}</h3><p class="sub">${t("planDone")}</p></div>
-      <span class="badge ok">✓</span></div>
-    <button class="btn line" style="margin-top:10px" onclick="toast(t('editPlan'))">${t("editPlan")}</button>
+    ${planSection()}
   </div>`;
 }
 
@@ -1007,25 +1116,15 @@ function connectSignupForm(){
   return `
   <div class="card">
     <h3>${t("signupTitle")}</h3>
-    <div class="field"><label>${t("fieldName")}</label><input id="cf_name" type="text" autocomplete="name" value="${escAttr(d.name)}"></div>
-    <div class="field"><label>${t("fieldPhone")}</label><input id="cf_phone" type="tel" autocomplete="tel" value="${escAttr(d.phone)}"></div>
-    <div class="field"><label>${t("fieldEmail")}</label><input id="cf_email" type="email" autocomplete="email" value="${escAttr(d.email)}"></div>
-    <div class="field"><label>${t("fieldPassword")}</label><input id="cf_pass" type="password" autocomplete="new-password" value="${escAttr(d.password)}"></div>
-    <div class="field"><label>${t("fieldConfirmPassword")}</label><input id="cf_pass2" type="password" autocomplete="new-password" value="${escAttr(d.confirm)}"></div>
+    <div class="field"><label>${t("fieldName")}</label><input id="cf_name" type="text" autocomplete="name" value="${escAttr(d.name)}" oninput="S.signupDraft.name=this.value"></div>
+    <div class="field"><label>${t("fieldPhone")}</label><input id="cf_phone" type="tel" autocomplete="tel" value="${escAttr(d.phone)}" oninput="S.signupDraft.phone=this.value"></div>
+    <div class="field"><label>${t("fieldEmail")}</label><input id="cf_email" type="email" autocomplete="email" value="${escAttr(d.email)}" oninput="S.signupDraft.email=this.value"></div>
+    <div class="field"><label>${t("fieldPassword")}</label><input id="cf_pass" type="password" autocomplete="new-password" value="${escAttr(d.password)}" oninput="S.signupDraft.password=this.value"></div>
+    <div class="field"><label>${t("fieldConfirmPassword")}</label><input id="cf_pass2" type="password" autocomplete="new-password" value="${escAttr(d.confirm)}" oninput="S.signupDraft.confirm=this.value"></div>
     ${fieldErr()}
-    <button class="btn" onclick="submitSignup()">${t("btnSignup")}</button>
+    <button class="btn" onclick="startSignup(S.signupDraft)">${t("btnSignup")}</button>
     <button class="linkbtn" style="margin-top:12px;display:block" onclick="S.connectView='login';S.formError='';render()">${t("switchToLogin")}</button>
   </div>`;
-}
-function submitSignup(){
-  S.signupDraft = {
-    name: document.getElementById("cf_name").value,
-    phone: document.getElementById("cf_phone").value,
-    email: document.getElementById("cf_email").value,
-    password: document.getElementById("cf_pass").value,
-    confirm: document.getElementById("cf_pass2").value,
-  };
-  startSignup(S.signupDraft);
 }
 
 function connectVerifyForm(){
@@ -1037,9 +1136,10 @@ function connectVerifyForm(){
     <div class="card soft" style="text-align:center;margin:12px 0">
       <div class="pts" style="font-size:28px;letter-spacing:6px">${p ? p.code : ""}</div>
     </div>
-    <div class="field"><label>${t("verifyCodeLabel")}</label><input id="cf_code" type="text" inputmode="numeric" maxlength="6"></div>
+    <div class="field"><label>${t("verifyCodeLabel")}</label>
+      <input id="cf_code" type="text" inputmode="numeric" maxlength="6" value="${escAttr(S.verifyCodeDraft)}" oninput="S.verifyCodeDraft=this.value"></div>
     ${fieldErr()}
-    <button class="btn" onclick="confirmSignup(document.getElementById('cf_code').value)">${t("verifyBtn")}</button>
+    <button class="btn" onclick="confirmSignup(S.verifyCodeDraft)">${t("verifyBtn")}</button>
   </div>`;
 }
 
@@ -1048,16 +1148,12 @@ function connectLoginForm(){
   return `
   <div class="card">
     <h3>${t("loginTitle")}</h3>
-    <div class="field"><label>${t("fieldPhone")} / ${t("fieldEmail")}</label><input id="cf_id" type="text" value="${escAttr(d.id)}"></div>
-    <div class="field"><label>${t("fieldPassword")}</label><input id="cf_pass" type="password" autocomplete="current-password" value="${escAttr(d.password)}"></div>
+    <div class="field"><label>${t("fieldPhone")} / ${t("fieldEmail")}</label><input id="cf_id" type="text" value="${escAttr(d.id)}" oninput="S.loginDraft.id=this.value"></div>
+    <div class="field"><label>${t("fieldPassword")}</label><input id="cf_pass" type="password" autocomplete="current-password" value="${escAttr(d.password)}" oninput="S.loginDraft.password=this.value"></div>
     ${fieldErr()}
-    <button class="btn" onclick="submitLogin()">${t("btnLogin")}</button>
+    <button class="btn" onclick="attemptLogin(S.loginDraft.id, S.loginDraft.password)">${t("btnLogin")}</button>
     <button class="linkbtn" style="margin-top:12px;display:block" onclick="S.connectView='signup';S.formError='';render()">${t("switchToSignup")}</button>
   </div>`;
-}
-function submitLogin(){
-  S.loginDraft = { id: document.getElementById("cf_id").value, password: document.getElementById("cf_pass").value };
-  attemptLogin(S.loginDraft.id, S.loginDraft.password);
 }
 
 function connectHome(){
@@ -1102,29 +1198,19 @@ function connectAddContactForm(){
   <button class="linkbtn" onclick="S.connectView='home';render()">← ${t("backBtn")}</button>
   <div class="card" style="margin-top:10px">
     <h3>${t("addContact")}</h3>
-    <div class="field"><label>${t("fieldName")}</label><input id="ac_name" type="text" value="${escAttr(d.name)}"></div>
-    <div class="field"><label>${t("fieldPhone")}</label><input id="ac_phone" type="tel" value="${escAttr(d.phone)}"></div>
-    <div class="field"><label>${t("fieldEmail")}</label><input id="ac_email" type="email" value="${escAttr(d.email)}"></div>
+    <div class="field"><label>${t("fieldName")}</label><input id="ac_name" type="text" value="${escAttr(d.name)}" oninput="S.contactDraft.name=this.value"></div>
+    <div class="field"><label>${t("fieldPhone")}</label><input id="ac_phone" type="tel" value="${escAttr(d.phone)}" oninput="S.contactDraft.phone=this.value"></div>
+    <div class="field"><label>${t("fieldEmail")}</label><input id="ac_email" type="email" value="${escAttr(d.email)}" oninput="S.contactDraft.email=this.value"></div>
     <div class="field"><label>${t("contactRelation")}</label>
-      <select id="ac_relation">
+      <select id="ac_relation" onchange="S.contactDraft.relation=this.value">
         <option value="family" ${d.relation==="family"?"selected":""}>${t("relFamily")}</option>
         <option value="friend" ${d.relation==="friend"?"selected":""}>${t("relFriend")}</option>
       </select>
     </div>
-    <div class="field"><label>${t("contactGroup")}</label><input id="ac_group" type="text" value="${escAttr(d.group)}"></div>
+    <div class="field"><label>${t("contactGroup")}</label><input id="ac_group" type="text" value="${escAttr(d.group)}" oninput="S.contactDraft.group=this.value"></div>
     ${fieldErr()}
-    <button class="btn" onclick="submitAddContact()">${t("saveContact")}</button>
+    <button class="btn" onclick="addContact(S.contactDraft)">${t("saveContact")}</button>
   </div>`;
-}
-function submitAddContact(){
-  S.contactDraft = {
-    name: document.getElementById("ac_name").value,
-    phone: document.getElementById("ac_phone").value,
-    email: document.getElementById("ac_email").value,
-    relation: document.getElementById("ac_relation").value,
-    group: document.getElementById("ac_group").value,
-  };
-  addContact(S.contactDraft);
 }
 
 function connectContactDetail(){
@@ -1188,8 +1274,21 @@ function render(){
 /* ---------------- actions ---------------- */
 function go(tab){ S.tab=tab; render(); }
 function setRec(k){ S.recTab=k; render(); }
-function restock(){ S.points+=5; toast("+5 "+t("pointsUnit")); render(); }
-function answerQuiz(ok){ if(ok){ S.points+=10; S.quizDone=true; toast(t("quizCorrect")); render(); } else { toast(t("quizWrong")); } }
+function restock(){
+  if(S.stockRestocked) return;
+  S.stockRestocked = true; S.points+=5; toast("+5 "+t("pointsUnit")); render();
+}
+function answerQuiz(ok){
+  if(ok){
+    S.points+=10;
+    const bank = QUIZZES[S.lang] || QUIZZES.ja;
+    S.quizIndex = Math.min(S.quizIndex+1, bank.length);
+    toast(t("quizCorrect"));
+    render();
+  } else {
+    toast(t("quizWrong"));
+  }
+}
 function toggleCheck(key){ S.checklist[key] = !S.checklist[key]; }
 function sendSafeStatus(){
   if(isLoggedIn()) setMyStatus("safe"); // no-op for anonymous users — unchanged from before
