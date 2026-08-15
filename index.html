@@ -87,6 +87,7 @@
   .badge.warn{ background:#FBE6DA;color:#B65E18; }
   .badge.ok{ background:#E1F0EC;color:#1E6B5E; }
   .badge.blue{ background:#E4EEF6;color:#2E6FA0; }
+  .livedot{ display:inline-block;width:6px;height:6px;border-radius:50%;background:#1E6B5E;margin-right:4px;animation:pulse 1.4s infinite; }
   .listitem{ display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line); }
   .listitem:last-child{ border-bottom:none; }
   .qty{ font-size:12px;color:var(--muted); }
@@ -213,6 +214,7 @@ const T = {
     resOfficial:"公式情報", resJMA:"気象庁の警報・注意報", resHazard:"国のハザードマップ",
     openMaps:"地図アプリで開く", searching:"周辺を検索中…", noResults:"近くに見つかりませんでした",
     supplyNote:"営業中の店舗（コンビニ・スーパー）を表示しています", foodNote:"周辺の飲食店を表示しています（公式の炊き出し情報ではありません）",
+    refreshLoc:"現在地を更新", live:"ライブ追跡中", accuracy:"精度",
   },
   easy:{
     nav_home:"ホーム", nav_prepare:"そなえる", nav_protect:"まもる", nav_recover:"たすける",
@@ -246,6 +248,7 @@ const T = {
     resOfficial:"こうしきの じょうほう", resJMA:"気象庁（きしょうちょう）の けいほう", resHazard:"くにの ハザードマップ",
     openMaps:"ちずアプリで ひらく", searching:"さがしています…", noResults:"ちかくに ありませんでした",
     supplyNote:"あいている お店（みせ）を みせています", foodNote:"ちかくの ごはんやさんです（こうしきの じょうほうでは ありません）",
+    refreshLoc:"いまの ばしょを こうしん", live:"いま ついせき ちゅう", accuracy:"せいど",
   },
   en:{
     nav_home:"Home", nav_prepare:"Prepare", nav_protect:"Protect", nav_recover:"Recover",
@@ -279,6 +282,7 @@ const T = {
     resOfficial:"Official resources", resJMA:"Japan Meteorological Agency warnings", resHazard:"National hazard map portal",
     openMaps:"Open in Maps", searching:"Searching nearby…", noResults:"Nothing found nearby",
     supplyNote:"Showing open convenience stores / supermarkets", foodNote:"Showing nearby restaurants (not official meal-distribution info)",
+    refreshLoc:"Refresh location", live:"Live tracking", accuracy:"Accuracy",
   },
   ne:{
     nav_home:"गृह", nav_prepare:"तयारी", nav_protect:"सुरक्षा", nav_recover:"सहयोग",
@@ -312,6 +316,7 @@ const T = {
     resOfficial:"आधिकारिक जानकारी", resJMA:"जापान मौसम एजेन्सीको चेतावनी", resHazard:"राष्ट्रिय जोखिम नक्सा पोर्टल",
     openMaps:"नक्सामा खोल्नुहोस्", searching:"नजिकै खोज्दै…", noResults:"नजिकै भेटिएन",
     supplyNote:"खुला पसल/सुपरमार्केट देखाइँदैछ", foodNote:"नजिकैका रेस्टुरेन्ट (आधिकारिक जानकारी होइन)",
+    refreshLoc:"स्थान ताजा गर्नुहोस्", live:"लाइभ ट्र्याकिङ", accuracy:"शुद्धता",
   }
 };
 
@@ -321,7 +326,7 @@ const S = {
   lang:"ja", phase:"heiji", tab:"home", points:120, recTab:"shelter", quizDone:false,
   checklist:{ act1:false, act2:false, act3:false },
   userToggled:false,
-  coords:null, locStatus:"pending", placeName:null,
+  coords:null, locStatus:"pending", placeName:null, accuracy:null, lastDataFetch:null,
   weather:null, weatherStatus:"loading",
   shelters:{ shelter:null, water:null, supply:null, food:null },
 };
@@ -349,22 +354,53 @@ function weatherBucket(code, precip){
   return "wxClear";
 }
 
-function locateUser(){
+const MOVE_RERENDER_KM = 0.1;   // reposition the map once you've moved ~100m
+const MOVE_REFETCH_KM = 0.3;    // re-pull weather/shelters once you've moved ~300m
+const DATA_MAX_AGE_MS = 5*60*1000; // otherwise, refresh data at most every 5 min
+let _watchId = null;
+
+function startLocationWatch(){
   if(!("geolocation" in navigator)){
     S.coords = TOKYO_FALLBACK; S.locStatus = "unavailable"; render(); afterDataChange();
     return;
   }
+  if(_watchId!=null) navigator.geolocation.clearWatch(_watchId);
+  _watchId = navigator.geolocation.watchPosition(handlePosition, handlePositionError, {
+    enableHighAccuracy:true, timeout:10000, maximumAge:0,
+  });
+}
+
+function handlePosition(pos, opts={}){
+  const prev = S.coords;
+  const next = { lat:pos.coords.latitude, lon:pos.coords.longitude };
+  const movedKm = prev ? haversineKm(prev, next) : Infinity;
+  S.coords = next;
+  S.accuracy = Math.round(pos.coords.accuracy);
+  const firstFix = S.locStatus !== "granted";
+  S.locStatus = "granted";
+  const dataStale = !S.lastDataFetch || (Date.now()-S.lastDataFetch) > DATA_MAX_AGE_MS;
+  const dueForData = opts.force || firstFix || movedKm > MOVE_REFETCH_KM || dataStale;
+  const dueForRender = opts.force || firstFix || movedKm > MOVE_RERENDER_KM || dueForData;
+  if(dueForRender) render();
+  if(dueForData){
+    S.lastDataFetch = Date.now();
+    afterDataChange();
+    reverseGeocode(next);
+  }
+}
+
+function handlePositionError(){
+  if(S.locStatus !== "granted"){ // don't clobber a fix we already have with a transient error
+    S.coords = TOKYO_FALLBACK; S.locStatus = "denied"; render(); afterDataChange();
+  }
+}
+
+function refreshLocationNow(){
+  toast(t("locating"));
   navigator.geolocation.getCurrentPosition(
-    pos=>{
-      S.coords = { lat:pos.coords.latitude, lon:pos.coords.longitude };
-      S.locStatus = "granted";
-      render(); afterDataChange();
-      reverseGeocode(S.coords);
-    },
-    ()=>{
-      S.coords = TOKYO_FALLBACK; S.locStatus = "denied"; render(); afterDataChange();
-    },
-    { timeout:10000, maximumAge:5*60*1000 }
+    pos=>handlePosition(pos, {force:true}),
+    ()=>toast(t("locDenied")),
+    { enableHighAccuracy:true, timeout:10000, maximumAge:0 }
   );
 }
 
@@ -472,6 +508,9 @@ function mountMap(containerId, points){
   if(_map){ _map.remove(); _map = null; }
   _map = L.map(containerId, { zoomControl:false, attributionControl:false }).setView([S.coords.lat, S.coords.lon], 14);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:19 }).addTo(_map);
+  if(S.accuracy){
+    L.circle([S.coords.lat, S.coords.lon], { radius:S.accuracy, color:"#1C7293", weight:1, fillOpacity:0.12 }).addTo(_map);
+  }
   L.marker([S.coords.lat, S.coords.lon]).addTo(_map).bindPopup(t("home"));
   points.forEach(p=>L.marker([p.lat, p.lon]).addTo(_map).bindPopup(p.name));
 }
@@ -551,13 +590,19 @@ function weatherLine(){
   const w = S.weather;
   const cond = t(weatherBucket(w.code, w.precip));
   const stale = S.weatherStatus==="stale" ? `<p class="note err">${t("weatherOffline")}</p>` : "";
+  const isLive = S.locStatus==="granted";
+  const placeLine = S.placeName || (S.locStatus==="denied"||S.locStatus==="unavailable" ? t("locDenied") : t("locating"));
+  const liveTag = isLive
+    ? `<span class="badge ok" style="margin-left:6px"><span class="livedot"></span>${t("live")}${S.accuracy?` · ${t("accuracy")} ±${S.accuracy}m`:""}</span>`
+    : "";
   return `
     <div class="row" style="margin-top:6px">
       <h3 class="grow">${cond} ${w.tempC}°C</h3>
       <span class="badge ok">${t("wind")} ${w.windKph}km/h</span>
     </div>
-    <p class="sub" style="margin-top:4px">${S.placeName || (S.locStatus==="denied"||S.locStatus==="unavailable" ? t("locDenied") : t("locating"))}</p>
-    ${stale}`;
+    <p class="sub" style="margin-top:4px">${placeLine} ${liveTag}</p>
+    ${stale}
+    <button class="btn line" style="margin-top:10px;width:auto;padding:7px 12px;font-size:12px" onclick="refreshLocationNow()">${t("refreshLoc")}</button>`;
 }
 
 function stockRow(icon,name,qty,soon){
@@ -717,7 +762,7 @@ document.querySelectorAll('#langpills button').forEach(b=>b.onclick=()=>{ S.lang
 $("#demoBtn").onclick = toggleDemo;
 
 render();
-locateUser();
+startLocationWatch();
 setInterval(fetchWeather, 5*60*1000);
 
 // offline support (works only when served over http/https, not file://)
