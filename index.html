@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0E3A5C" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="ソナエル" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>ソナエル SONAERU</title>
+<style>
+  :root{
+    --navy:#0E3A5C; --ink:#22303C; --muted:#5B6C79; --line:#E1E9F0;
+    --panel:#F3F7FA; --white:#FFFFFF; --amber:#D9772B; --red:#C24A3A;
+    --p1:#1E8A7A; --p2:#D9772B; --p3:#2E7DB8;
+    /* dynamic phase tokens */
+    --accent:#1C7293; --accent-soft:#E7F1F4; --state-bg:#F3F7FA; --state-band:#1C7293;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:"Yu Gothic UI","Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+    background:#0a2033; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; min-height:100%;
+  }
+  /* phone frame */
+  #app{
+    width:100%; max-width:430px; height:100vh; max-height:920px;
+    background:var(--state-bg); position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);
+    transition:background .35s ease;
+  }
+  @media (min-width:480px){ #app{ border-radius:34px; height:90vh; } }
+
+  /* header */
+  header{
+    background:var(--navy); color:#fff; padding:14px 16px 12px;
+    transition:background .35s ease;
+  }
+  #app[data-phase="hassai"] header{ background:#6B1E14; }
+  .brandrow{ display:flex; align-items:center; gap:9px; }
+  .logo{ width:30px;height:30px;flex:0 0 auto; }
+  .brand{ font-weight:800; font-size:19px; letter-spacing:.5px; }
+  .brand small{ font-weight:600; font-size:10px; color:#9CC3DC; letter-spacing:3px; display:block; margin-top:-2px;}
+  .langpills{ display:flex; gap:5px; margin-left:auto; }
+  .langpills button{
+    border:1px solid rgba(255,255,255,.35); background:transparent; color:#cfe0ec;
+    font-size:11px; font-weight:700; padding:4px 7px; border-radius:20px; cursor:pointer;
+    font-family:inherit;
+  }
+  .langpills button.on{ background:#fff; color:var(--navy); border-color:#fff; }
+
+  /* phase banner */
+  .banner{
+    padding:12px 16px; display:flex; align-items:center; gap:12px;
+    color:#fff; background:var(--state-band); transition:background .35s ease;
+  }
+  .banner .dot{ width:11px;height:11px;border-radius:50%;background:#fff;flex:0 0 auto;
+    box-shadow:0 0 0 4px rgba(255,255,255,.25); }
+  #app[data-phase="hassai"] .banner .dot{ animation:pulse 1s infinite; }
+  @keyframes pulse{0%{box-shadow:0 0 0 2px rgba(255,255,255,.4)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 2px rgba(255,255,255,0)}}
+  .banner b{ font-size:15px; display:block; }
+  .banner span{ font-size:11.5px; opacity:.9; }
+
+  /* screen */
+  main{ flex:1; overflow-y:auto; padding:14px 15px 20px; -webkit-overflow-scrolling:touch; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:15px; margin-bottom:12px; }
+  .card.soft{ background:var(--accent-soft); border:none; }
+  .card h3{ margin:0 0 4px; font-size:15px; }
+  .card .sub{ font-size:12px; color:var(--muted); margin:0; line-height:1.5; }
+  .eyebrow{ font-size:10.5px; font-weight:800; letter-spacing:2px; color:var(--accent); text-transform:uppercase; }
+  .row{ display:flex; align-items:center; gap:12px; }
+  .grow{ flex:1; }
+  .icoc{ width:42px;height:42px;border-radius:12px;flex:0 0 auto;display:flex;align-items:center;justify-content:center; }
+  .icoc svg{ width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2; }
+  .btn{ border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;
+    padding:11px 14px;font-size:13.5px;cursor:pointer;font-family:inherit;width:100%; }
+  .btn.line{ background:#fff;color:var(--accent);border:1.5px solid var(--accent); }
+  .btn.alert{ background:var(--red); }
+  .pts{ font-size:34px;font-weight:800;color:var(--accent);line-height:1; }
+  .badge{ font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:20px; }
+  .badge.warn{ background:#FBE6DA;color:#B65E18; }
+  .badge.ok{ background:#E1F0EC;color:#1E6B5E; }
+  .badge.blue{ background:#E4EEF6;color:#2E6FA0; }
+  .listitem{ display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line); }
+  .listitem:last-child{ border-bottom:none; }
+  .qty{ font-size:12px;color:var(--muted); }
+  .judge{ border-radius:16px;padding:18px;color:#fff;text-align:center; }
+  .judge b{ font-size:22px;display:block;margin-bottom:4px; }
+  .judge span{ font-size:12.5px;opacity:.92; }
+  .map{ height:120px;border-radius:12px;background:
+      repeating-linear-gradient(45deg,#e8eef3 0 12px,#eef3f7 12px 24px);
+      position:relative;overflow:hidden;border:1px solid var(--line);margin-top:10px; }
+  .map .pin{ position:absolute;width:14px;height:14px;border-radius:50% 50% 50% 0;
+      background:var(--red);transform:rotate(-45deg);border:2px solid #fff; }
+  .map .home{ position:absolute;left:22px;bottom:20px;font-size:10px;font-weight:800;color:var(--navy); }
+  .chips{ display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px; }
+  .chips button{ white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--muted);
+     font-weight:700;font-size:12px;padding:7px 12px;border-radius:20px;cursor:pointer;font-family:inherit; }
+  .chips button.on{ background:var(--accent);color:#fff;border-color:var(--accent); }
+  .check{ display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:13px; }
+  .check input{ margin-top:2px;width:18px;height:18px;accent-color:var(--accent); }
+
+  /* bottom nav */
+  nav{ display:flex;background:#fff;border-top:1px solid var(--line); }
+  nav button{ flex:1;border:none;background:none;padding:9px 2px 10px;cursor:pointer;font-family:inherit;
+     color:var(--muted);font-size:10.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px; }
+  nav button svg{ width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2; }
+  nav button.on{ color:var(--accent); }
+  #app[data-phase="hassai"] nav button.on{ color:var(--red); }
+
+  /* demo toggle */
+  .demo{ position:absolute;left:50%;transform:translateX(-50%);bottom:74px;z-index:20; }
+  .demo button{ border:none;border-radius:24px;padding:9px 16px;font-weight:800;font-size:12px;
+     color:#fff;background:var(--amber);box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;font-family:inherit; }
+  #app[data-phase="hassai"] .demo button{ background:#3b4a55; }
+
+  .toast{ position:absolute;left:50%;bottom:130px;transform:translateX(-50%) translateY(20px);
+    background:var(--navy);color:#fff;padding:11px 18px;border-radius:24px;font-size:13px;font-weight:700;
+    opacity:0;pointer-events:none;transition:.3s;z-index:30;white-space:nowrap;max-width:90%; }
+  .toast.show{ opacity:1;transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app" data-phase="heiji">
+  <header>
+    <div class="brandrow">
+      <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+        <line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/>
+      </svg>
+      <div class="brand">ソナエル<small>SONAERU</small></div>
+      <div class="langpills" id="langpills">
+        <button data-l="ja" class="on">日本</button>
+        <button data-l="easy">やさ</button>
+        <button data-l="en">EN</button>
+        <button data-l="ne">ने</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner">
+    <div class="dot"></div>
+    <div><b id="bTitle"></b><span id="bSub"></span></div>
+  </div>
+
+  <main id="screen"></main>
+
+  <div class="demo"><button id="demoBtn"></button></div>
+  <div class="toast" id="toast"></div>
+
+  <nav id="nav">
+    <button data-t="home" class="on">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span data-nav="home"></span></button>
+    <button data-t="prepare">
+      <svg viewBox="0 0 24 24"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+      <span data-nav="prepare"></span></button>
+    <button data-t="protect">
+      <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg>
+      <span data-nav="protect"></span></button>
+    <button data-t="recover">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/>
+        <line x1="12" y1="3" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="21"/>
+        <line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>
+      <span data-nav="recover"></span></button>
+  </nav>
+</div>
+
+<script>
+/* ---------------- i18n dictionary ---------------- */
+const T = {
+  ja:{
+    nav_home:"ホーム", nav_prepare:"そなえる", nav_protect:"まもる", nav_recover:"たすかる",
+    heiji_t:"平時モード", heiji_s:"今、災害の危険はありません",
+    hassai_t:"大雨特別警報 発表中", hassai_s:"命を守る行動をとってください",
+    points:"防災ポイント", pointsUnit:"pt", weather:"今の天気・警報", weatherVal:"晴れ／警報なし",
+    riskH:"自宅の浸水リスク", riskV:"中（想定 0.5〜3m）", seeMap:"ハザードマップを見る",
+    stock:"ローリングストック", expSoon:"期限間近", enough:"十分",
+    useReplace:"消費して補充 +5pt", quizT:"防災クイズ",
+    quizQ:"大雨で避難する時、正しいのは？", quizA1:"車で低い道を通る", quizA2:"歩いて高い所へ",
+    quizCorrect:"正解！ +10pt", quizWrong:"もう一度考えてみよう",
+    plan:"家族の避難計画", planDone:"登録済み", editPlan:"計画を見る／編集",
+    openProtect:"まもるモードを開く",
+    judgeStay:"在宅避難が可能です", judgeStayS:"自宅の上階で安全に過ごせます",
+    judgeGo:"避難を推奨します", judgeGoS:"浸水前に、近くの避難所へ移動してください",
+    nearest:"最寄りの避難所", dist:"距離", route:"冠水を避けたルートを表示",
+    actions:"今すぐの行動", act1:"ブレーカーとガス栓を確認", act2:"貴重品と薬をまとめる",
+    act3:"高い場所・上階へ移動", sendSafe:"家族に安否を送る", safeSent:"家族に安否を送信しました",
+    home:"自宅",
+    shelter:"避難所", water:"給水所", supply:"物資配布", food:"炊き出し",
+    open:"開設中", multiling:"多言語対応", safeReg:"安否登録",
+    safeRegOK:"登録済み・家族と共有中", langInfo:"すべての情報を母国語で表示中",
+    demoStart:"デモ：災害を発生させる", demoStop:"デモ：平常にもどす",
+    stockRice:"アルファ米", stockWater:"飲料水", stockLight:"モバイルバッテリー",
+    unitMeal:"食", unitBottle:"本", unitPc:"個",
+    shName1:"○○小学校 体育館", shName2:"△△公民館", shName3:"□□給水ステーション", shName4:"◇◇公園 炊き出し",
+  },
+  easy:{
+    nav_home:"ホーム", nav_prepare:"そなえる", nav_protect:"まもる", nav_recover:"たすける",
+    heiji_t:"ふつうのとき", heiji_s:"いま、あぶなくないです",
+    hassai_t:"とても つよい 雨（あめ）の けいほう", hassai_s:"いのちを まもって ください",
+    points:"ぼうさい ポイント", pointsUnit:"pt", weather:"いまの 天気（てんき）", weatherVal:"はれ／けいほう なし",
+    riskH:"あなたの 家（いえ）の みずの きけん", riskV:"ちゅう（0.5〜3m）", seeMap:"ちずを 見（み）る",
+    stock:"たべもの・水（みず）の ストック", expSoon:"きげん ちかい", enough:"じゅうぶん",
+    useReplace:"つかって 買（か）う +5pt", quizT:"ぼうさい クイズ",
+    quizQ:"大雨（おおあめ）の とき、ただしいのは？", quizA1:"車（くるま）で ひくい 道（みち）", quizA2:"あるいて たかい ところ",
+    quizCorrect:"せいかい！ +10pt", quizWrong:"もういちど かんがえよう",
+    plan:"かぞくの にげる けいかく", planDone:"できた", editPlan:"けいかくを 見（み）る",
+    openProtect:"「まもる」を ひらく",
+    judgeStay:"家（いえ）に いても だいじょうぶ", judgeStayS:"いえの 上（うえ）の かいで まつ",
+    judgeGo:"にげて ください", judgeGoS:"みずが くる まえに ちかくの ばしょへ",
+    nearest:"いちばん ちかい にげる ばしょ", dist:"きょり", route:"あんぜんな みちを 見（み）る",
+    actions:"いま すること", act1:"でんきと ガスを けす", act2:"たいせつな もの・くすり",
+    act3:"たかい ところへ いく", sendSafe:"かぞくに 「ぶじ」を おくる", safeSent:"かぞくに おくりました",
+    home:"いえ",
+    shelter:"にげる ばしょ", water:"みずを もらう", supply:"もの", food:"たべもの",
+    open:"あいてる", multiling:"ことば OK", safeReg:"ぶじ とうろく",
+    safeRegOK:"できた・かぞくと きょうゆう", langInfo:"あなたの ことばで ぜんぶ 見（み）えます",
+    demoStart:"デモ：さいがいを おこす", demoStop:"デモ：もとに もどす",
+    stockRice:"アルファ米（まい）", stockWater:"のみみず", stockLight:"バッテリー",
+    unitMeal:"しょく", unitBottle:"ほん", unitPc:"こ",
+    shName1:"○○しょうがっこう", shName2:"△△こうみんかん", shName3:"□□きゅうすい", shName4:"◇◇こうえん たべもの",
+  },
+  en:{
+    nav_home:"Home", nav_prepare:"Prepare", nav_protect:"Protect", nav_recover:"Recover",
+    heiji_t:"Everyday mode", heiji_s:"No disaster risk right now",
+    hassai_t:"Heavy Rain Emergency Warning", hassai_s:"Take action to protect your life",
+    points:"Disaster points", pointsUnit:"pt", weather:"Weather / alerts", weatherVal:"Clear / no alert",
+    riskH:"Flood risk at your home", riskV:"Medium (0.5–3m expected)", seeMap:"Open hazard map",
+    stock:"Rolling stock", expSoon:"Expiring soon", enough:"Enough",
+    useReplace:"Use & restock +5pt", quizT:"Disaster quiz",
+    quizQ:"When evacuating in heavy rain, which is right?", quizA1:"Drive on low roads", quizA2:"Walk to high ground",
+    quizCorrect:"Correct! +10pt", quizWrong:"Try thinking again",
+    plan:"Family evacuation plan", planDone:"Registered", editPlan:"View / edit plan",
+    openProtect:"Open Protect mode",
+    judgeStay:"You can stay home safely", judgeStayS:"Shelter on an upper floor of your home",
+    judgeGo:"Evacuation recommended", judgeGoS:"Move to a nearby shelter before flooding",
+    nearest:"Nearest shelter", dist:"Distance", route:"Show flood-safe route",
+    actions:"Do this now", act1:"Check breaker & gas valve", act2:"Gather valuables & medicine",
+    act3:"Move to higher ground / upstairs", sendSafe:"Send 'I'm safe' to family", safeSent:"Sent your status to family",
+    home:"Home",
+    shelter:"Shelter", water:"Water point", supply:"Supplies", food:"Hot meals",
+    open:"Open", multiling:"Multilingual", safeReg:"Safety check-in",
+    safeRegOK:"Registered · shared with family", langInfo:"All info shown in your language",
+    demoStart:"Demo: trigger a disaster", demoStop:"Demo: back to normal",
+    stockRice:"Instant rice", stockWater:"Drinking water", stockLight:"Power bank",
+    unitMeal:"meals", unitBottle:"bottles", unitPc:"pcs",
+    shName1:"City Elementary Gym", shName2:"Community Hall", shName3:"Water Station", shName4:"Park Meal Point",
+  },
+  ne:{
+    nav_home:"गृह", nav_prepare:"तयारी", nav_protect:"सुरक्षा", nav_recover:"सहयोग",
+    heiji_t:"सामान्य अवस्था", heiji_s:"अहिले कुनै विपद्को जोखिम छैन",
+    hassai_t:"भारी वर्षा आपत्‌कालीन चेतावनी", hassai_s:"जीवन बचाउन कदम चाल्नुहोस्",
+    points:"विपद् अंक", pointsUnit:"pt", weather:"मौसम / चेतावनी", weatherVal:"सफा / चेतावनी छैन",
+    riskH:"तपाईंको घरको बाढी जोखिम", riskV:"मध्यम (०.५–३मि)", seeMap:"जोखिम नक्सा हेर्नुहोस्",
+    stock:"रोलिङ स्टक", expSoon:"म्याद सकिँदै", enough:"पर्याप्त",
+    useReplace:"प्रयोग गरी भर्नुहोस् +5pt", quizT:"विपद् क्विज",
+    quizQ:"भारी वर्षामा जाँदा कुन सही?", quizA1:"गाडीमा होचो बाटो", quizA2:"हिँडेर अग्लो ठाउँ",
+    quizCorrect:"सही! +10pt", quizWrong:"फेरि सोच्नुहोस्",
+    plan:"परिवार निकासी योजना", planDone:"दर्ता भयो", editPlan:"योजना हेर्नुहोस्",
+    openProtect:"सुरक्षा मोड खोल्नुहोस्",
+    judgeStay:"घरमै सुरक्षित रहन सकिन्छ", judgeStayS:"घरको माथिल्लो तलामा बस्नुहोस्",
+    judgeGo:"निकासी सिफारिस", judgeGoS:"बाढी अघि नजिकैको आश्रयमा जानुहोस्",
+    nearest:"नजिकको आश्रय", dist:"दूरी", route:"बाढीरहित बाटो देखाउनुहोस्",
+    actions:"अहिले गर्नुहोस्", act1:"बिजुली/ग्यास बन्द गर्नुहोस्", act2:"मूल्यवान/औषधि जम्मा",
+    act3:"अग्लो ठाउँमा जानुहोस्", sendSafe:"परिवारलाई 'सुरक्षित' पठाउनुहोस्", safeSent:"स्थिति पठाइयो",
+    home:"घर",
+    shelter:"आश्रय", water:"पानी", supply:"सामग्री", food:"न्यानो खाना",
+    open:"खुला", multiling:"बहुभाषिक", safeReg:"सुरक्षा दर्ता",
+    safeRegOK:"दर्ता · परिवारसँग साझा", langInfo:"सबै जानकारी तपाईंको भाषामा",
+    demoStart:"डेमो: विपद् सुरु", demoStop:"डेमो: सामान्यमा फर्कनुहोस्",
+    stockRice:"तयारी भात", stockWater:"पिउने पानी", stockLight:"पावर ब्यांक",
+    unitMeal:"भोजन", unitBottle:"बोतल", unitPc:"वटा",
+    shName1:"सिटी प्राथमिक जिम", shName2:"सामुदायिक हल", shName3:"पानी स्टेसन", shName4:"पार्क खाना केन्द्र",
+  }
+};
+
+/* ---------------- state ---------------- */
+const S = { lang:"ja", phase:"heiji", tab:"home", points:120, recTab:"shelter", quizDone:false };
+const t = k => (T[S.lang] && T[S.lang][k]) || T.ja[k] || k;
+const $ = s => document.querySelector(s);
+const app = $("#app");
+
+function setPhaseTokens(){
+  const r = document.documentElement.style;
+  if(S.phase==="hassai"){
+    r.setProperty("--accent","#C24A3A"); r.setProperty("--accent-soft","#FBEAE6");
+    r.setProperty("--state-bg","#FBF3F1"); r.setProperty("--state-band","#C24A3A");
+  } else if(S.tab==="recover"){
+    r.setProperty("--accent","#2E7DB8"); r.setProperty("--accent-soft","#E7F0F7");
+    r.setProperty("--state-bg","#F3F7FA"); r.setProperty("--state-band","#2E7DB8");
+  } else {
+    r.setProperty("--accent","#1C7293"); r.setProperty("--accent-soft","#E7F1F4");
+    r.setProperty("--state-bg","#F3F7FA"); r.setProperty("--state-band","#1C7293");
+  }
+}
+
+function toast(msg){
+  const el=$("#toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),1800);
+}
+
+/* ---------------- screens ---------------- */
+function screenHome(){
+  const alertCard = S.phase==="hassai" ? `
+    <div class="card" style="border-color:#E6A99E;background:#FBEAE6">
+      <div class="row">
+        <div class="icoc" style="background:var(--red)"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r=".6"/></svg></div>
+        <div class="grow"><h3 style="color:#8f2c1e">${t("hassai_t")}</h3><p class="sub">${t("hassai_s")}</p></div>
+      </div>
+      <button class="btn alert" style="margin-top:10px" onclick="go('protect')">${t("openProtect")}</button>
+    </div>` : "";
+  return `
+  ${alertCard}
+  <div class="card">
+    <div class="row">
+      <div><span class="eyebrow">${t("points")}</span><div class="pts">${S.points}<span style="font-size:14px"> ${t("pointsUnit")}</span></div></div>
+      <div class="icoc grow" style="background:var(--accent);max-width:42px;margin-left:auto">
+        <svg viewBox="0 0 24 24"><path d="M12 2l2.5 5 5.5.8-4 3.9 1 5.5L12 20l-5 2.6 1-5.5-4-3.9 5.5-.8z"/></svg></div>
+    </div>
+  </div>
+  <div class="card">
+    <span class="eyebrow">${t("weather")}</span>
+    <div class="row" style="margin-top:6px"><h3 class="grow">${S.phase==="hassai"?t("hassai_t"):t("weatherVal")}</h3>
+      <span class="badge ${S.phase==="hassai"?"warn":"ok"}">${S.phase==="hassai"?"!!!":"OK"}</span></div>
+  </div>
+  <div class="card soft">
+    <div class="row"><div class="grow"><h3>${t("riskH")}</h3><p class="sub">${t("riskV")}</p></div>
+      <span class="badge warn">${t("expSoon")==="期限間近"?"中":"MID"}</span></div>
+  </div>
+  <div class="row" style="gap:10px">
+    <button class="btn line" onclick="go('prepare')">${t("nav_prepare")}</button>
+    <button class="btn line" onclick="go('recover')">${t("nav_recover")}</button>
+  </div>`;
+}
+
+function stockRow(icon,name,qty,soon){
+  return `<div class="listitem">
+    <div class="icoc" style="background:var(--accent)"><svg viewBox="0 0 24 24">${icon}</svg></div>
+    <div class="grow"><b style="font-size:13.5px">${name}</b><div class="qty">${qty}</div></div>
+    <span class="badge ${soon?"warn":"ok"}">${soon?t("expSoon"):t("enough")}</span>
+  </div>`;
+}
+function screenPrepare(){
+  const quiz = S.quizDone ? `<p class="sub" style="color:var(--p1);font-weight:700">${t("quizCorrect")}</p>` :
+   `<p class="sub">${t("quizQ")}</p>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn line" onclick="answerQuiz(false)">${t("quizA1")}</button>
+      <button class="btn line" onclick="answerQuiz(true)">${t("quizA2")}</button></div>`;
+  return `
+  <div class="card soft">
+    <span class="eyebrow">${t("riskH")}</span>
+    <div class="row" style="margin-top:6px"><h3 class="grow">${t("riskV")}</h3><span class="badge warn">MID</span></div>
+    <button class="btn line" style="margin-top:10px" onclick="toast(t('seeMap'))">${t("seeMap")}</button>
+  </div>
+  <div class="card">
+    <span class="eyebrow">${t("stock")}</span>
+    ${stockRow('<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>', t("stockRice"), "12 "+t("unitMeal"), true)}
+    ${stockRow('<path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>', t("stockWater"), "6 "+t("unitBottle"), false)}
+    ${stockRow('<rect x="6" y="3" width="12" height="18" rx="2"/><line x1="10" y1="7" x2="14" y2="7"/>', t("stockLight"), "2 "+t("unitPc"), false)}
+    <button class="btn" style="margin-top:12px" onclick="restock()">${t("useReplace")}</button>
+  </div>
+  <div class="card">
+    <span class="eyebrow">${t("quizT")}</span><div style="height:4px"></div>${quiz}
+  </div>
+  <div class="card">
+    <div class="row"><div class="grow"><h3>${t("plan")}</h3><p class="sub">${t("planDone")}</p></div>
+      <span class="badge ok">✓</span></div>
+    <button class="btn line" style="margin-top:10px" onclick="toast(t('editPlan'))">${t("editPlan")}</button>
+  </div>`;
+}
+
+function screenProtect(){
+  const go = S.phase==="hassai";  // if disaster on -> recommend evacuation (home risk medium)
+  const judge = go ? `
+    <div class="judge" style="background:var(--red)"><b>${t("judgeGo")}</b><span>${t("judgeGoS")}</span></div>`
+   :`<div class="judge" style="background:var(--p1)"><b>${t("judgeStay")}</b><span>${t("judgeStayS")}</span></div>`;
+  return `
+  ${judge}
+  <div class="card" style="margin-top:12px">
+    <span class="eyebrow">${t("nearest")}</span>
+    <div class="row" style="margin-top:6px"><h3 class="grow">${t("shName1")}</h3><span class="qty">${t("dist")} 480m</span></div>
+    <div class="map"><span class="home">◉ ${t("home")}</span><div class="pin" style="right:34px;top:26px"></div>
+      <svg style="position:absolute;inset:0" viewBox="0 0 300 120" preserveAspectRatio="none">
+        <path d="M40 96 C 110 96, 120 40, 250 34" stroke="#2E7DB8" stroke-width="4" fill="none" stroke-dasharray="7 6"/></svg></div>
+    <button class="btn" style="margin-top:12px" onclick="toast(t('route'))">${t("route")}</button>
+  </div>
+  <div class="card">
+    <span class="eyebrow">${t("actions")}</span>
+    <label class="check"><input type="checkbox"><span>${t("act1")}</span></label>
+    <label class="check"><input type="checkbox"><span>${t("act2")}</span></label>
+    <label class="check"><input type="checkbox"><span>${t("act3")}</span></label>
+  </div>
+  <button class="btn" onclick="toast(t('safeSent'))">${t("sendSafe")}</button>`;
+}
+
+function screenRecover(){
+  const rows = {
+    shelter:[["shName1","480m","open"],["shName2","1.2km","open"]],
+    water:[["shName3","650m","open"]],
+    supply:[["shName2","1.2km","open"]],
+    food:[["shName4","900m","open"]],
+  }[S.recTab];
+  const chip = (k,lab)=>`<button class="${S.recTab===k?"on":""}" onclick="setRec('${k}')">${lab}</button>`;
+  const list = rows.map(([n,d,st])=>`
+    <div class="listitem">
+      <div class="icoc" style="background:var(--accent)"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
+      <div class="grow"><b style="font-size:13.5px">${t(n)}</b><div class="qty">${t("dist")} ${d}</div></div>
+      <div style="text-align:right"><span class="badge ok">${t("open")}</span><br>
+        <span class="badge blue" style="margin-top:4px;display:inline-block">${t("multiling")}</span></div>
+    </div>`).join("");
+  return `
+  <div class="card soft"><div class="row">
+    <div class="icoc" style="background:var(--p3)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg></div>
+    <p class="sub grow" style="color:#2E6FA0;font-weight:700">${t("langInfo")}</p></div>
+  </div>
+  <div class="chips">
+    ${chip("shelter",t("shelter"))}${chip("water",t("water"))}${chip("supply",t("supply"))}${chip("food",t("food"))}
+  </div>
+  <div class="card">${list}</div>
+  <div class="card">
+    <div class="row"><div class="grow"><h3>${t("safeReg")}</h3><p class="sub">${t("safeRegOK")}</p></div>
+      <span class="badge ok">✓</span></div>
+  </div>`;
+}
+
+/* ---------------- render ---------------- */
+function render(){
+  setPhaseTokens();
+  app.dataset.phase = S.phase;
+  // banner
+  $("#bTitle").textContent = S.phase==="hassai" ? t("hassai_t") : t("heiji_t");
+  $("#bSub").textContent   = S.phase==="hassai" ? t("hassai_s") : t("heiji_s");
+  // nav labels + active
+  document.querySelectorAll('[data-nav]').forEach(el=>{
+    el.textContent = t("nav_"+el.dataset.nav);
+  });
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle("on", b.dataset.t===S.tab));
+  // lang pills
+  document.querySelectorAll('#langpills button').forEach(b=>b.classList.toggle("on", b.dataset.l===S.lang));
+  // demo btn
+  $("#demoBtn").textContent = S.phase==="hassai" ? t("demoStop") : t("demoStart");
+  // screen
+  const scr = { home:screenHome, prepare:screenPrepare, protect:screenProtect, recover:screenRecover }[S.tab];
+  $("#screen").innerHTML = scr();
+  $("#screen").scrollTop = 0;
+}
+
+/* ---------------- actions ---------------- */
+function go(tab){ S.tab=tab; render(); }
+function setRec(k){ S.recTab=k; render(); }
+function restock(){ S.points+=5; toast("+5 "+t("pointsUnit")); render(); }
+function answerQuiz(ok){ if(ok){ S.points+=10; S.quizDone=true; toast(t("quizCorrect")); render(); } else { toast(t("quizWrong")); } }
+function toggleDemo(){
+  S.phase = S.phase==="hassai" ? "heiji" : "hassai";
+  if(S.phase==="hassai") S.tab="home";
+  render();
+}
+
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+document.querySelectorAll('#langpills button').forEach(b=>b.onclick=()=>{ S.lang=b.dataset.l; document.documentElement.lang=b.dataset.l; render(); });
+$("#demoBtn").onclick = toggleDemo;
+
+render();
+
+// offline support (works only when served over http/https, not file://)
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>

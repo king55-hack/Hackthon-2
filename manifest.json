@@ -1,0 +1,15 @@
+{
+  "name": "ソナエル SONAERU",
+  "short_name": "ソナエル",
+  "description": "平時・発災・復旧をひとつに。ことばの壁を越える多言語防災アプリ。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E3A5C",
+  "theme_color": "#0E3A5C",
+  "lang": "ja",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
