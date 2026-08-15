@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="ソナエル" />
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <title>ソナエル SONAERU</title>
 <style>
   :root{
@@ -97,6 +99,11 @@
   .map .pin{ position:absolute;width:14px;height:14px;border-radius:50% 50% 50% 0;
       background:var(--red);transform:rotate(-45deg);border:2px solid #fff; }
   .map .home{ position:absolute;left:22px;bottom:20px;font-size:10px;font-weight:800;color:var(--navy); }
+  .map.tall{ height:170px; }
+  .map .leaflet-container{ font-family:inherit; }
+  .note{ font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5; }
+  .note.err{ color:#B65E18; }
+  .linkrow{ display:block;text-decoration:none; }
   .chips{ display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px; }
   .chips button{ white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--muted);
      font-weight:700;font-size:12px;padding:7px 12px;border-radius:20px;cursor:pointer;font-family:inherit; }
@@ -199,6 +206,13 @@ const T = {
     stockRice:"アルファ米", stockWater:"飲料水", stockLight:"モバイルバッテリー",
     unitMeal:"食", unitBottle:"本", unitPc:"個",
     shName1:"○○小学校 体育館", shName2:"△△公民館", shName3:"□□給水ステーション", shName4:"◇◇公園 炊き出し",
+    riskBadge:"中", wind:"風速",
+    locating:"現在地を取得中…", locDenied:"位置情報を利用できないため、東京を仮の現在地として表示しています",
+    weatherLoading:"天気を取得中…", weatherOffline:"オフライン・前回の値を表示中",
+    wxClear:"晴れ", wxCloudy:"くもり", wxFog:"霧", wxRain:"雨", wxHeavy:"大雨", wxStorm:"雷雨", wxSnow:"雪",
+    resOfficial:"公式情報", resJMA:"気象庁の警報・注意報", resHazard:"国のハザードマップ",
+    openMaps:"地図アプリで開く", searching:"周辺を検索中…", noResults:"近くに見つかりませんでした",
+    supplyNote:"営業中の店舗（コンビニ・スーパー）を表示しています", foodNote:"周辺の飲食店を表示しています（公式の炊き出し情報ではありません）",
   },
   easy:{
     nav_home:"ホーム", nav_prepare:"そなえる", nav_protect:"まもる", nav_recover:"たすける",
@@ -225,6 +239,13 @@ const T = {
     stockRice:"アルファ米（まい）", stockWater:"のみみず", stockLight:"バッテリー",
     unitMeal:"しょく", unitBottle:"ほん", unitPc:"こ",
     shName1:"○○しょうがっこう", shName2:"△△こうみんかん", shName3:"□□きゅうすい", shName4:"◇◇こうえん たべもの",
+    riskBadge:"ちゅう", wind:"かぜの つよさ",
+    locating:"いま いる ばしょを さがしています…", locDenied:"ばしょが わからないので、とうきょうを かりの ばしょに しています",
+    weatherLoading:"天気（てんき）を しらべています…", weatherOffline:"オフライン・まえの じょうほう",
+    wxClear:"はれ", wxCloudy:"くもり", wxFog:"きり", wxRain:"あめ", wxHeavy:"おおあめ", wxStorm:"らいう", wxSnow:"ゆき",
+    resOfficial:"こうしきの じょうほう", resJMA:"気象庁（きしょうちょう）の けいほう", resHazard:"くにの ハザードマップ",
+    openMaps:"ちずアプリで ひらく", searching:"さがしています…", noResults:"ちかくに ありませんでした",
+    supplyNote:"あいている お店（みせ）を みせています", foodNote:"ちかくの ごはんやさんです（こうしきの じょうほうでは ありません）",
   },
   en:{
     nav_home:"Home", nav_prepare:"Prepare", nav_protect:"Protect", nav_recover:"Recover",
@@ -251,6 +272,13 @@ const T = {
     stockRice:"Instant rice", stockWater:"Drinking water", stockLight:"Power bank",
     unitMeal:"meals", unitBottle:"bottles", unitPc:"pcs",
     shName1:"City Elementary Gym", shName2:"Community Hall", shName3:"Water Station", shName4:"Park Meal Point",
+    riskBadge:"MID", wind:"Wind",
+    locating:"Finding your location…", locDenied:"Location unavailable — showing Tokyo as a placeholder",
+    weatherLoading:"Loading weather…", weatherOffline:"Offline · showing last known reading",
+    wxClear:"Clear", wxCloudy:"Cloudy", wxFog:"Fog", wxRain:"Rain", wxHeavy:"Heavy rain", wxStorm:"Thunderstorm", wxSnow:"Snow",
+    resOfficial:"Official resources", resJMA:"Japan Meteorological Agency warnings", resHazard:"National hazard map portal",
+    openMaps:"Open in Maps", searching:"Searching nearby…", noResults:"Nothing found nearby",
+    supplyNote:"Showing open convenience stores / supermarkets", foodNote:"Showing nearby restaurants (not official meal-distribution info)",
   },
   ne:{
     nav_home:"गृह", nav_prepare:"तयारी", nav_protect:"सुरक्षा", nav_recover:"सहयोग",
@@ -277,14 +305,176 @@ const T = {
     stockRice:"तयारी भात", stockWater:"पिउने पानी", stockLight:"पावर ब्यांक",
     unitMeal:"भोजन", unitBottle:"बोतल", unitPc:"वटा",
     shName1:"सिटी प्राथमिक जिम", shName2:"सामुदायिक हल", shName3:"पानी स्टेसन", shName4:"पार्क खाना केन्द्र",
+    riskBadge:"मध्यम", wind:"हावाको गति",
+    locating:"स्थान पत्ता लगाउँदै…", locDenied:"स्थान उपलब्ध छैन — टोकियोलाई अस्थायी स्थानको रूपमा देखाइँदैछ",
+    weatherLoading:"मौसम लोड हुँदैछ…", weatherOffline:"अफलाइन · अन्तिम थाहा पाएको डेटा",
+    wxClear:"सफा", wxCloudy:"बादल", wxFog:"कुहिरो", wxRain:"वर्षा", wxHeavy:"भारी वर्षा", wxStorm:"चट्याङसहित वर्षा", wxSnow:"हिमपात",
+    resOfficial:"आधिकारिक जानकारी", resJMA:"जापान मौसम एजेन्सीको चेतावनी", resHazard:"राष्ट्रिय जोखिम नक्सा पोर्टल",
+    openMaps:"नक्सामा खोल्नुहोस्", searching:"नजिकै खोज्दै…", noResults:"नजिकै भेटिएन",
+    supplyNote:"खुला पसल/सुपरमार्केट देखाइँदैछ", foodNote:"नजिकैका रेस्टुरेन्ट (आधिकारिक जानकारी होइन)",
   }
 };
 
 /* ---------------- state ---------------- */
-const S = { lang:"ja", phase:"heiji", tab:"home", points:120, recTab:"shelter", quizDone:false };
+const TOKYO_FALLBACK = { lat:35.6762, lon:139.6503 };
+const S = {
+  lang:"ja", phase:"heiji", tab:"home", points:120, recTab:"shelter", quizDone:false,
+  checklist:{ act1:false, act2:false, act3:false },
+  userToggled:false,
+  coords:null, locStatus:"pending", placeName:null,
+  weather:null, weatherStatus:"loading",
+  shelters:{ shelter:null, water:null, supply:null, food:null },
+};
 const t = k => (T[S.lang] && T[S.lang][k]) || T.ja[k] || k;
 const $ = s => document.querySelector(s);
 const app = $("#app");
+
+/* ---------------- real-data helpers ---------------- */
+function haversineKm(a,b){
+  const R=6371, toRad=x=>x*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
+  const s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
+  return R*2*Math.asin(Math.sqrt(s));
+}
+function fmtDist(km){
+  return km < 1 ? Math.round(km*1000)+"m" : km.toFixed(1)+"km";
+}
+function weatherBucket(code, precip){
+  if([95,96,99].includes(code)) return "wxStorm";
+  if([71,73,75,77,85,86].includes(code)) return "wxSnow";
+  if([45,48].includes(code)) return "wxFog";
+  if([65,67,82].includes(code) || precip>=10) return "wxHeavy";
+  if([51,53,55,56,57,61,63,66,80,81].includes(code)) return "wxRain";
+  if([1,2,3].includes(code)) return "wxCloudy";
+  return "wxClear";
+}
+
+function locateUser(){
+  if(!("geolocation" in navigator)){
+    S.coords = TOKYO_FALLBACK; S.locStatus = "unavailable"; render(); afterDataChange();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      S.coords = { lat:pos.coords.latitude, lon:pos.coords.longitude };
+      S.locStatus = "granted";
+      render(); afterDataChange();
+      reverseGeocode(S.coords);
+    },
+    ()=>{
+      S.coords = TOKYO_FALLBACK; S.locStatus = "denied"; render(); afterDataChange();
+    },
+    { timeout:10000, maximumAge:5*60*1000 }
+  );
+}
+
+async function reverseGeocode(coords){
+  try{
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.lat}&lon=${coords.lon}&zoom=14&accept-language=${S.lang==="en"?"en":"ja"}`;
+    const res = await fetch(url, { headers:{ "Accept":"application/json" } });
+    const data = await res.json();
+    const a = data.address || {};
+    S.placeName = a.suburb || a.town || a.city || a.city_district || a.county || data.display_name || null;
+    render();
+  }catch(e){ /* offline or blocked — silently keep placeName null */ }
+}
+
+async function fetchWeather(){
+  if(!S.coords) return;
+  S.weatherStatus = "loading";
+  try{
+    const { lat, lon } = S.coords;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,weather_code,wind_speed_10m&timezone=auto`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("bad response");
+    const data = await res.json();
+    const c = data.current;
+    S.weather = {
+      tempC: Math.round(c.temperature_2m), code: c.weather_code,
+      precip: c.precipitation, windKph: Math.round(c.wind_speed_10m),
+      fetchedAt: Date.now(),
+    };
+    S.weatherStatus = "ok";
+    localStorage.setItem("sonaeru_weather_cache", JSON.stringify(S.weather));
+    if(!S.userToggled){
+      const bucket = weatherBucket(S.weather.code, S.weather.precip);
+      S.phase = (bucket==="wxHeavy" || bucket==="wxStorm") ? "hassai" : "heiji";
+    }
+  }catch(e){
+    const cached = localStorage.getItem("sonaeru_weather_cache");
+    if(cached){ S.weather = JSON.parse(cached); S.weatherStatus = "stale"; }
+    else S.weatherStatus = "error";
+  }
+  render();
+}
+
+const OVERPASS_TAGS = {
+  shelter: [["amenity","shelter"],["emergency","assembly_point"],["amenity","community_centre"],["amenity","school"]],
+  water:   [["amenity","drinking_water"]],
+  supply:  [["shop","convenience"],["shop","supermarket"]],
+  food:    [["amenity","fast_food"],["amenity","restaurant"]],
+};
+const OVERPASS_ENDPOINTS = ["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+
+async function fetchNearby(cat){
+  if(!S.coords) return;
+  S.shelters[cat] = { status:"loading", items:[] };
+  render();
+  const tags = OVERPASS_TAGS[cat];
+  const { lat, lon } = S.coords;
+  for(const radius of [3000, 10000]){
+    const clauses = tags.map(([k,v])=>`nwr["${k}"="${v}"](around:${radius},${lat},${lon});`).join("");
+    const query = `[out:json][timeout:15];(${clauses});out center 15;`;
+    let found = null;
+    for(const endpoint of OVERPASS_ENDPOINTS){
+      try{
+        const ctrl = new AbortController();
+        const timer = setTimeout(()=>ctrl.abort(), 12000);
+        const res = await fetch(endpoint, { method:"POST", body:"data="+encodeURIComponent(query), signal:ctrl.signal });
+        clearTimeout(timer);
+        if(!res.ok) continue;
+        const data = await res.json();
+        found = data.elements || [];
+        break;
+      }catch(e){ /* try next endpoint */ }
+    }
+    if(found && found.length){
+      const items = found.map(el=>{
+        const p = el.type==="node" ? { lat:el.lat, lon:el.lon } : (el.center || null);
+        if(!p) return null;
+        return { name: el.tags?.name || t(cat), lat:p.lat, lon:p.lon, distKm: haversineKm(S.coords, p) };
+      }).filter(Boolean).sort((a,b)=>a.distKm-b.distKm).slice(0,5);
+      S.shelters[cat] = { status: items.length ? "ok" : "empty", items };
+      render();
+      return;
+    }
+  }
+  S.shelters[cat] = { status:"empty", items:[] };
+  render();
+}
+function ensureNearby(cat){
+  const s = S.shelters[cat];
+  if(!s || (s.status!=="ok" && s.status!=="loading" && s.status!=="empty")) fetchNearby(cat);
+}
+
+function afterDataChange(){
+  fetchWeather();
+  ensureNearby("shelter");
+}
+
+let _map = null;
+function mountMap(containerId, points){
+  const el = document.getElementById(containerId);
+  if(!el || typeof L==="undefined" || !S.coords){
+    if(_map){ _map.remove(); _map = null; }
+    return;
+  }
+  if(_map){ _map.remove(); _map = null; }
+  _map = L.map(containerId, { zoomControl:false, attributionControl:false }).setView([S.coords.lat, S.coords.lon], 14);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:19 }).addTo(_map);
+  L.marker([S.coords.lat, S.coords.lon]).addTo(_map).bindPopup(t("home"));
+  points.forEach(p=>L.marker([p.lat, p.lon]).addTo(_map).bindPopup(p.name));
+}
 
 function setPhaseTokens(){
   const r = document.documentElement.style;
@@ -326,17 +516,48 @@ function screenHome(){
   </div>
   <div class="card">
     <span class="eyebrow">${t("weather")}</span>
-    <div class="row" style="margin-top:6px"><h3 class="grow">${S.phase==="hassai"?t("hassai_t"):t("weatherVal")}</h3>
-      <span class="badge ${S.phase==="hassai"?"warn":"ok"}">${S.phase==="hassai"?"!!!":"OK"}</span></div>
+    ${weatherLine()}
   </div>
   <div class="card soft">
     <div class="row"><div class="grow"><h3>${t("riskH")}</h3><p class="sub">${t("riskV")}</p></div>
-      <span class="badge warn">${t("expSoon")==="期限間近"?"中":"MID"}</span></div>
+      <span class="badge warn">${t("riskBadge")}</span></div>
   </div>
   <div class="row" style="gap:10px">
     <button class="btn line" onclick="go('prepare')">${t("nav_prepare")}</button>
     <button class="btn line" onclick="go('recover')">${t("nav_recover")}</button>
+  </div>
+  <div class="card">
+    <span class="eyebrow">${t("resOfficial")}</span>
+    <a class="linkrow" href="https://www.jma.go.jp/bosai/#pattern=default" target="_blank" rel="noopener">
+      <div class="row" style="margin-top:8px"><h3 class="grow" style="font-size:13.5px;color:var(--ink)">${t("resJMA")}</h3><span class="badge blue">↗</span></div>
+    </a>
+    <a class="linkrow" href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener">
+      <div class="row" style="margin-top:10px"><h3 class="grow" style="font-size:13.5px;color:var(--ink)">${t("resHazard")}</h3><span class="badge blue">↗</span></div>
+    </a>
   </div>`;
+}
+
+function weatherLine(){
+  if(S.phase==="hassai"){
+    return `<div class="row" style="margin-top:6px"><h3 class="grow">${t("hassai_t")}</h3>
+      <span class="badge warn">!!!</span></div>`;
+  }
+  if(S.weatherStatus==="loading" && !S.weather){
+    return `<p class="sub" style="margin-top:6px">${t("weatherLoading")}</p>`;
+  }
+  if(S.weatherStatus==="error" && !S.weather){
+    return `<p class="sub" style="margin-top:6px">${t("weatherOffline")}</p>`;
+  }
+  const w = S.weather;
+  const cond = t(weatherBucket(w.code, w.precip));
+  const stale = S.weatherStatus==="stale" ? `<p class="note err">${t("weatherOffline")}</p>` : "";
+  return `
+    <div class="row" style="margin-top:6px">
+      <h3 class="grow">${cond} ${w.tempC}°C</h3>
+      <span class="badge ok">${t("wind")} ${w.windKph}km/h</span>
+    </div>
+    <p class="sub" style="margin-top:4px">${S.placeName || (S.locStatus==="denied"||S.locStatus==="unavailable" ? t("locDenied") : t("locating"))}</p>
+    ${stale}`;
 }
 
 function stockRow(icon,name,qty,soon){
@@ -355,8 +576,8 @@ function screenPrepare(){
   return `
   <div class="card soft">
     <span class="eyebrow">${t("riskH")}</span>
-    <div class="row" style="margin-top:6px"><h3 class="grow">${t("riskV")}</h3><span class="badge warn">MID</span></div>
-    <button class="btn line" style="margin-top:10px" onclick="toast(t('seeMap'))">${t("seeMap")}</button>
+    <div class="row" style="margin-top:6px"><h3 class="grow">${t("riskV")}</h3><span class="badge warn">${t("riskBadge")}</span></div>
+    <button class="btn line" style="margin-top:10px" onclick="window.open('https://disaportal.gsi.go.jp/','_blank')">${t("seeMap")}</button>
   </div>
   <div class="card">
     <span class="eyebrow">${t("stock")}</span>
@@ -376,44 +597,56 @@ function screenPrepare(){
 }
 
 function screenProtect(){
+  ensureNearby("shelter");
   const go = S.phase==="hassai";  // if disaster on -> recommend evacuation (home risk medium)
   const judge = go ? `
     <div class="judge" style="background:var(--red)"><b>${t("judgeGo")}</b><span>${t("judgeGoS")}</span></div>`
    :`<div class="judge" style="background:var(--p1)"><b>${t("judgeStay")}</b><span>${t("judgeStayS")}</span></div>`;
+  const sh = S.shelters.shelter;
+  const nearest = sh && sh.status==="ok" ? sh.items[0] : null;
+  const nearestRow = nearest
+    ? `<div class="row" style="margin-top:6px"><h3 class="grow">${nearest.name}</h3><span class="qty">${t("dist")} ${fmtDist(nearest.distKm)}</span></div>`
+    : `<p class="sub" style="margin-top:6px">${sh && sh.status==="empty" ? t("noResults") : t("searching")}</p>`;
+  const routeBtn = nearest && S.coords
+    ? `<a class="btn linkrow" style="margin-top:12px;text-align:center" target="_blank" rel="noopener"
+        href="https://www.google.com/maps/dir/?api=1&origin=${S.coords.lat},${S.coords.lon}&destination=${nearest.lat},${nearest.lon}&travelmode=walking">${t("route")}</a>`
+    : `<button class="btn" style="margin-top:12px" disabled>${t("route")}</button>`;
   return `
   ${judge}
   <div class="card" style="margin-top:12px">
     <span class="eyebrow">${t("nearest")}</span>
-    <div class="row" style="margin-top:6px"><h3 class="grow">${t("shName1")}</h3><span class="qty">${t("dist")} 480m</span></div>
-    <div class="map"><span class="home">◉ ${t("home")}</span><div class="pin" style="right:34px;top:26px"></div>
-      <svg style="position:absolute;inset:0" viewBox="0 0 300 120" preserveAspectRatio="none">
-        <path d="M40 96 C 110 96, 120 40, 250 34" stroke="#2E7DB8" stroke-width="4" fill="none" stroke-dasharray="7 6"/></svg></div>
-    <button class="btn" style="margin-top:12px" onclick="toast(t('route'))">${t("route")}</button>
+    ${nearestRow}
+    <div class="map tall" id="protectMap"></div>
+    ${routeBtn}
   </div>
   <div class="card">
     <span class="eyebrow">${t("actions")}</span>
-    <label class="check"><input type="checkbox"><span>${t("act1")}</span></label>
-    <label class="check"><input type="checkbox"><span>${t("act2")}</span></label>
-    <label class="check"><input type="checkbox"><span>${t("act3")}</span></label>
+    <label class="check"><input type="checkbox" ${S.checklist.act1?"checked":""} onchange="toggleCheck('act1')"><span>${t("act1")}</span></label>
+    <label class="check"><input type="checkbox" ${S.checklist.act2?"checked":""} onchange="toggleCheck('act2')"><span>${t("act2")}</span></label>
+    <label class="check"><input type="checkbox" ${S.checklist.act3?"checked":""} onchange="toggleCheck('act3')"><span>${t("act3")}</span></label>
   </div>
   <button class="btn" onclick="toast(t('safeSent'))">${t("sendSafe")}</button>`;
 }
 
 function screenRecover(){
-  const rows = {
-    shelter:[["shName1","480m","open"],["shName2","1.2km","open"]],
-    water:[["shName3","650m","open"]],
-    supply:[["shName2","1.2km","open"]],
-    food:[["shName4","900m","open"]],
-  }[S.recTab];
+  ensureNearby(S.recTab);
   const chip = (k,lab)=>`<button class="${S.recTab===k?"on":""}" onclick="setRec('${k}')">${lab}</button>`;
-  const list = rows.map(([n,d,st])=>`
-    <div class="listitem">
-      <div class="icoc" style="background:var(--accent)"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
-      <div class="grow"><b style="font-size:13.5px">${t(n)}</b><div class="qty">${t("dist")} ${d}</div></div>
-      <div style="text-align:right"><span class="badge ok">${t("open")}</span><br>
-        <span class="badge blue" style="margin-top:4px;display:inline-block">${t("multiling")}</span></div>
-    </div>`).join("");
+  const cat = S.shelters[S.recTab];
+  const catNote = S.recTab==="supply" ? t("supplyNote") : S.recTab==="food" ? t("foodNote") : "";
+  let list;
+  if(!cat || cat.status==="loading"){
+    list = `<p class="sub">${t("searching")}</p>`;
+  } else if(cat.status==="empty" || !cat.items.length){
+    list = `<p class="sub">${t("noResults")}</p>`;
+  } else {
+    list = cat.items.map(p=>`
+      <a class="listitem linkrow" style="color:inherit" target="_blank" rel="noopener"
+         href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}">
+        <div class="icoc" style="background:var(--accent)"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
+        <div class="grow"><b style="font-size:13.5px">${p.name}</b><div class="qty">${t("dist")} ${fmtDist(p.distKm)}</div></div>
+        <span class="badge blue">${t("openMaps")}</span>
+      </a>`).join("");
+  }
   return `
   <div class="card soft"><div class="row">
     <div class="icoc" style="background:var(--p3)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg></div>
@@ -422,7 +655,11 @@ function screenRecover(){
   <div class="chips">
     ${chip("shelter",t("shelter"))}${chip("water",t("water"))}${chip("supply",t("supply"))}${chip("food",t("food"))}
   </div>
-  <div class="card">${list}</div>
+  <div class="map tall" id="recoverMap"></div>
+  <div class="card" style="margin-top:12px">
+    ${catNote ? `<p class="note">${catNote}</p>` : ""}
+    ${list}
+  </div>
   <div class="card">
     <div class="row"><div class="grow"><h3>${t("safeReg")}</h3><p class="sub">${t("safeRegOK")}</p></div>
       <span class="badge ok">✓</span></div>
@@ -430,6 +667,7 @@ function screenRecover(){
 }
 
 /* ---------------- render ---------------- */
+let _lastTab = null;
 function render(){
   setPhaseTokens();
   app.dataset.phase = S.phase;
@@ -448,7 +686,17 @@ function render(){
   // screen
   const scr = { home:screenHome, prepare:screenPrepare, protect:screenProtect, recover:screenRecover }[S.tab];
   $("#screen").innerHTML = scr();
-  $("#screen").scrollTop = 0;
+  if(_lastTab !== S.tab){ $("#screen").scrollTop = 0; _lastTab = S.tab; }
+  // live map (mounted after innerHTML so the container elements exist)
+  if(S.tab==="protect"){
+    const sh = S.shelters.shelter;
+    mountMap("protectMap", sh && sh.status==="ok" ? sh.items.slice(0,1) : []);
+  } else if(S.tab==="recover"){
+    const cat = S.shelters[S.recTab];
+    mountMap("recoverMap", cat && cat.status==="ok" ? cat.items : []);
+  } else if(_map){
+    _map.remove(); _map = null;
+  }
 }
 
 /* ---------------- actions ---------------- */
@@ -456,7 +704,9 @@ function go(tab){ S.tab=tab; render(); }
 function setRec(k){ S.recTab=k; render(); }
 function restock(){ S.points+=5; toast("+5 "+t("pointsUnit")); render(); }
 function answerQuiz(ok){ if(ok){ S.points+=10; S.quizDone=true; toast(t("quizCorrect")); render(); } else { toast(t("quizWrong")); } }
+function toggleCheck(key){ S.checklist[key] = !S.checklist[key]; }
 function toggleDemo(){
+  S.userToggled = true;
   S.phase = S.phase==="hassai" ? "heiji" : "hassai";
   if(S.phase==="hassai") S.tab="home";
   render();
@@ -467,6 +717,8 @@ document.querySelectorAll('#langpills button').forEach(b=>b.onclick=()=>{ S.lang
 $("#demoBtn").onclick = toggleDemo;
 
 render();
+locateUser();
+setInterval(fetchWeather, 5*60*1000);
 
 // offline support (works only when served over http/https, not file://)
 if("serviceWorker" in navigator && location.protocol.startsWith("http")){
