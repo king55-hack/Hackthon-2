@@ -508,7 +508,13 @@ const MOVE_REFETCH_KM = 0.3;    // re-pull weather/shelters once you've moved ~3
 const DATA_MAX_AGE_MS = 5*60*1000; // otherwise, refresh data at most every 5 min
 let _watchId = null;
 
+const DEMO_LOCATION = { latitude:35.6586, longitude:139.7454 }; // Tokyo Tower — a real, recognizable public landmark, not anyone's actual address
 function startLocationWatch(){
+  if(new URLSearchParams(location.search).get("demo") === "1"){
+    // recording mode: fake a real public landmark instead of ever touching the real device location
+    handlePosition({ coords:{ ...DEMO_LOCATION, accuracy:30 } }, { force:true });
+    return;
+  }
   if(!("geolocation" in navigator)){
     S.coords = TOKYO_FALLBACK; S.locStatus = "unavailable"; render(); afterDataChange();
     return;
