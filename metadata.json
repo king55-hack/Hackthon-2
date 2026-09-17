@@ -1,0 +1,6 @@
+{
+  "name": "ソナエル",
+  "description": "平時・発災・復旧をひとつに。ことばの壁を越える多言語防災アプリ。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
